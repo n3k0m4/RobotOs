@@ -10,15 +10,10 @@
 #define port_left OUTPUT_B
 #define port_right OUTPUT_C
 
-
-void init();
-void finished();
-int moveForward(int speed);
-int moveBackward(int speed);
-int turnRightMotor(int speed);
-int turnLeftMotor(int speed);
-int stop();
-int softStop();
-
+void init_movement();
+void move(int speed);
+void stop(uint8_t command);
+void turn_left_motor(int speed);
+void turn_right_motor(int speed);
 
 #endif

@@ -4,6 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define Sleep(msec) usleep((msec)*1000
+#define SLEEP(msec) usleep((msec) * 1000)
 
 #endif

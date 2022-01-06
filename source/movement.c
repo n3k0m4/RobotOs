@@ -1,88 +1,87 @@
+#include "stdlib.h"
 #include "movement.h"
-uint8_t m_left;
-uint8_t m_right;
+
+
+uint8_t motor_left;
+uint8_t motor_right;
 int max_speed;
-int max_speed_left;
-int max_speed_right;
+
+static void _run_motor_forever(uint8_t motor_sn, int speed)
+{
+    set_tacho_speed_sp(motor_sn, speed);
+    set_tacho_command_inx(motor_sn, TACHO_RUN_FOREVER);
+}
+
+static void _stop_motor(uint8_t motor_sn, uint8_t command)
+{
+    set_tacho_stop_action_inx(motor_sn, command);
+    set_tacho_command_inx(motor_sn, TACHO_STOP);
+}
+
+// Can call with speed = 0 to use max_speed without knowing its value
+// If speed is not valid, 0 is returned
+static int _validate_speed(int speed)
+{
+    if (speed == 0)
+        speed = max_speed;
+    if (abs(speed) > max_speed)
+    {
+        printf("Speed %d cannot be bigger than max_speed %d", speed, max_speed);
+        return 0;
+    }
+    return speed;
+}
 
 // Init the motors and set max_speed
-void init() {
+void init_movement()
+{
+    int max_speed_left;
+    int max_speed_right;
+
     while (ev3_tacho_init() < 1)
         sleep(1000);
-    ev3_search_tacho_plugged_in(port_left, 0, &m_left, 0);
-    ev3_search_tacho_plugged_in(port_right, 0, &m_right, 0);
-    get_tacho_max_speed(m_left, &max_speed_left);
-    get_tacho_max_speed(m_right, &max_speed_right);
+
+    ev3_search_tacho_plugged_in(port_left, 0, &motor_left, 0);
+    ev3_search_tacho_plugged_in(port_right, 0, &motor_right, 0);
+    get_tacho_max_speed(motor_left, &max_speed_left);
+    get_tacho_max_speed(motor_right, &max_speed_right);
     max_speed = max_speed_right > max_speed_left ? max_speed_left : max_speed_right;
 }
-// Work done, Stop motors
-void finished() {
-    set_tacho_stop_action_inx(m_left, TACHO_COAST);
-    set_tacho_stop_action_inx(m_right, TACHO_COAST);
-    set_tacho_command_inx(m_left, TACHO_STOP);
-    set_tacho_command_inx(m_right, TACHO_STOP);
+
+// Can be called with speed = 0 to use max_speed
+void move(int speed)
+{
+    speed = _validate_speed(speed);
+    if (speed == 0)
+        return;
+    _run_motor_forever(motor_right, speed);
+    _run_motor_forever(motor_left, speed);
 }
 
-// Zoom forward with a speed
-int moveForward(int speed) {
-    // speed 0 just to able to launch with max_speed without knowing it
-    if (speed == 0 || speed > max_speed)
-        speed = max_speed;
-    set_tacho_speed_sp(m_left, speed);
-    set_tacho_speed_sp(m_right, speed);
-    set_tacho_command_inx(m_left, TACHO_RUN_FOREVER);
-    set_tacho_command_inx(m_right, TACHO_RUN_FOREVER);
-    return 0;
+void stop(uint8_t command)
+{
+    _stop_motor(motor_right, command);
+    _stop_motor(motor_left, command);
 }
 
 // Move only the left motor
-int turnLeftMotor(int speed) {
-    if (speed == 0 || speed > max_speed)
-        speed = max_speed;
-    set_tacho_speed_sp(m_left, speed);
-    set_tacho_stop_action_inx(m_right, TACHO_COAST);
-    set_tacho_command_inx(m_right, TACHO_STOP);
-    set_tacho_command_inx(m_left, TACHO_RUN_FOREVER);
-    return 0;
+// Can be called with speed = 0 to use max_speed
+void turn_left_motor(int speed)
+{
+    speed = _validate_speed(speed);
+    if (speed == 0)
+        return;
+    _stop_motor(motor_right, TACHO_COAST);
+    _run_motor_forever(motor_left, speed);
 }
 
 // Move only the right motor
-int turnRightMotor(int speed) {
-    if (speed == 0 || speed > max_speed)
-        speed = max_speed;
-    set_tacho_speed_sp(m_left, speed);
-    set_tacho_stop_action_inx(m_left, TACHO_COAST);
-    set_tacho_command_inx(m_left, TACHO_STOP);
-    set_tacho_command_inx(m_right, TACHO_RUN_FOREVER);
-    return 0;
-}
-
-// Move backward
-int moveBackward(int speed) {
-    if (speed == 0 || speed > max_speed)
-        speed = max_speed;
-    speed = -speed;
-    set_tacho_speed_sp(m_left, speed);
-    set_tacho_speed_sp(m_right, speed);
-    set_tacho_command_inx(m_left, TACHO_RUN_FOREVER);
-    set_tacho_command_inx(m_right, TACHO_RUN_FOREVER);
-    return 0;
-}
-
-// Stop with hard brakes, effective to halt and recover 
-int stop() {
-    set_tacho_stop_action_inx(m_left, TACHO_HOLD);
-    set_tacho_stop_action_inx(m_right, TACHO_HOLD);
-    set_tacho_command_inx(m_left, TACHO_STOP);
-    set_tacho_command_inx(m_right, TACHO_STOP);
-    return 0;
-}
-
-// Stop with soft brakes
-int softStop(){
-    set_tacho_stop_action_inx(m_left, TACHO_BRAKE);
-    set_tacho_stop_action_inx(m_right, TACHO_BRAKE);
-    set_tacho_command_inx(m_left, TACHO_STOP);
-    set_tacho_command_inx(m_right, TACHO_STOP);
-    return 0;
+// Can be called with speed = 0 to use max_speed
+void turn_right_motor(int speed)
+{
+    speed = _validate_speed(speed);
+    if (speed == 0)
+        return;
+    _stop_motor(motor_left, TACHO_COAST);
+    _run_motor_forever(motor_right, speed);
 }
