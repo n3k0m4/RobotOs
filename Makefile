@@ -21,20 +21,23 @@
 # The main executable will be located in the same directory as you ran 
 # "Make" from. To add new .c files, simply add them to the OBJS variable.
 
-CC 			= arm-linux-gnueabi-gcc
-CFLAGS 		= -O2 -g -std=gnu99 -W -Wall -Wno-comment
-INCLUDES 	= -I./ev3dev-c/source/ev3 -I./include/
-LDFLAGS 	= -L./libraries -lrt -lm -lev3dev-c -lpthread -lbluetooth
-BUILD_DIR 	= ./build
-SOURCE_DIR 	= ./source
-
-OBJS = \
-	$(BUILD_DIR)/movement.o \
+# 	$(BUILD_DIR)/movement.o \
 	$(BUILD_DIR)/sensors.o \
 	$(BUILD_DIR)/bt_client.o \
 	$(BUILD_DIR)/messages.o \
-	$(BUILD_DIR)/main.o
+	-lbluetooth   /add later
 
+CC 			= arm-linux-gnueabi-gcc
+CFLAGS 		= -O2 -g -std=gnu99 -W -Wall -Wno-comment
+INCLUDES 	= -I./ev3dev-c/source/ev3 -I./include/
+LDFLAGS 	= -L./libraries -lrt -lm -lev3dev-c -lpthread 
+BUILD_DIR 	= ./build
+SOURCE_DIR 	= ./source
+
+OBJS = $(BUILD_DIR)/movement.o \
+		$(BUILD_DIR)/main.o
+
+#OBJS = $(BUILD_DIR)/main.o
 all: main
 
 main: ${OBJS}
