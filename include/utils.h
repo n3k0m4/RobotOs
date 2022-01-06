@@ -2,12 +2,12 @@
 #define UTILS_H
 
 #include <stdio.h>
+#include <string.h>
 #include "ev3.h"
 #include "ev3_port.h"
 #include "ev3_tacho.h"
-#include <string.h>
-#define leftMotor "outB"
-#define rightMotor "outA"
+#define RIGHT_MOTOR_PORT "outA"
+#define LEFT_MOTOR_PORT "outB"
 static uint8_t i;
 
 static uint8_t getLeftMotor(){
@@ -17,14 +17,14 @@ static uint8_t getLeftMotor(){
     for (i = 0; i < DESC_LIMIT; i++)
     {
         if (ev3_tacho[i].type_inx != TACHO_TYPE__NONE_){
-            if(strcmp(leftMotor, ev3_tacho_type(ev3_tacho[i].type_inx))==0)
+            if(strcmp(LEFT_MOTOR_PORT, ev3_tacho_type(ev3_tacho[i].type_inx))==0)
         {
             printf("  index is = %d\n", i);
             return i;
         }
     }}
 }
-static uint8_t getRighttMotor(){
+static uint8_t getRightMotor(){
     
     if (ev3_tacho_init() < 1)
         printf("TACHO NOT INITIATED !");
@@ -32,7 +32,7 @@ static uint8_t getRighttMotor(){
     for (i = 0; i < DESC_LIMIT; i++)
     {
         if (ev3_tacho[i].type_inx != TACHO_TYPE__NONE_){
-            if (strcmp(rightMotor, ev3_tacho_type(ev3_tacho[i].type_inx))==0)
+            if (strcmp(RIGHT_MOTOR_PORT, ev3_tacho_type(ev3_tacho[i].type_inx))==0)
         {
             printf("  index is = %d\n", i);
             return i;

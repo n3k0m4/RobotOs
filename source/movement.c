@@ -1,5 +1,6 @@
 #include <movement.h>
 #include <utils.h>
+#include <stdlib.h>
 
 static void move(uint8_t speed, float distance){
     uint8_t leftMotor = getLeftMotor();
