@@ -2,7 +2,6 @@
 #include "utils.h"
 #include "movement.h"
 
-
 int main(void)
 {
     int i;

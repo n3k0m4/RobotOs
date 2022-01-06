@@ -7,8 +7,8 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
-#define port_left OUTPUT_B
-#define port_right OUTPUT_C
+#define PORT_LEFT OUTPUT_B
+#define PORT_RIGHT OUTPUT_C
 
 void init_movement();
 void move(int speed);

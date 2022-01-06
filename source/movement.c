@@ -1,7 +1,6 @@
 #include "stdlib.h"
 #include "movement.h"
 
-
 uint8_t motor_left;
 uint8_t motor_right;
 int max_speed;
@@ -39,10 +38,10 @@ void init_movement()
     int max_speed_right;
 
     while (ev3_tacho_init() < 1)
-        sleep(1000);
+        sleep(1);
 
-    ev3_search_tacho_plugged_in(port_left, 0, &motor_left, 0);
-    ev3_search_tacho_plugged_in(port_right, 0, &motor_right, 0);
+    ev3_search_tacho_plugged_in(PORT_LEFT, 0, &motor_left, 0);
+    ev3_search_tacho_plugged_in(PORT_RIGHT, 0, &motor_right, 0);
     get_tacho_max_speed(motor_left, &max_speed_left);
     get_tacho_max_speed(motor_right, &max_speed_right);
     max_speed = max_speed_right > max_speed_left ? max_speed_left : max_speed_right;
