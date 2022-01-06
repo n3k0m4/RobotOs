@@ -2,18 +2,23 @@
 #define MOVEMENT_H
 
 #include <stdio.h>
+#include <unistd.h>
 #include "ev3.h"
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
-#include <unistd.h>
-#define Sleep(msec) usleep((msec)*1000)
+#define port_left OUTPUT_B
+#define port_right OUTPUT_C
 
 
-static void move(uint8_t speed, float distance);
-static void turnLeft(float angle);
-static void turnRight(float angle);
-
+void init();
+void finished();
+int moveForward(int speed);
+int moveBackward(int speed);
+int turnRightMotor(int speed);
+int turnLeftMotor(int speed);
+int stop();
+int softStop();
 
 
 #endif
