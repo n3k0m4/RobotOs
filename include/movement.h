@@ -13,7 +13,9 @@
 void init_movement();
 void move(int speed);
 void stop(uint8_t command);
-void turn_left_motor(int speed);
-void turn_right_motor(int speed);
+void run_right_motor(int speed);
+void run_left_motor(int speed);
+void turn_90d_right(int speed);
+void turn_90d_left(int speed);
 
 #endif

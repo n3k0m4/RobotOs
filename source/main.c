@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "utils.h"
 #include "movement.h"
+#include "sensors.h"
 
 int main(void)
 {
@@ -10,9 +11,10 @@ int main(void)
     char s[256];
     printf("*** ( EV3 ) Hello! ***\n");
     init_movement();
-    move(0);
-    sleep(10);
-    stop(TACHO_COAST);
+    init_sensors();
+    printf("*** Initialisation done ***\n");
+
+    turn_90d_left(0);
     ev3_uninit();
     printf("*** ( EV3 ) Bye! ***\n");
 

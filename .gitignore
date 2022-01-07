@@ -4,6 +4,7 @@ libraries/libev3dev-c.a
 build/*
 
 .vscode
+main
 
 # Prerequisites
 *.d

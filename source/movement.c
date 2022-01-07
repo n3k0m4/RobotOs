@@ -1,20 +1,27 @@
 #include "stdlib.h"
 #include "movement.h"
+#include "sensors.h"
 
-uint8_t motor_left;
-uint8_t motor_right;
+#define ANGLE_THRESHOLD 10
+
+uint8_t sn_motor_left;
+uint8_t sn_motor_right;
 int max_speed;
 
-static void _run_motor_forever(uint8_t motor_sn, int speed)
+// Init the motors and set max_speed
+void init_movement()
 {
-    set_tacho_speed_sp(motor_sn, speed);
-    set_tacho_command_inx(motor_sn, TACHO_RUN_FOREVER);
-}
+    int max_speed_left;
+    int max_speed_right;
 
-static void _stop_motor(uint8_t motor_sn, uint8_t command)
-{
-    set_tacho_stop_action_inx(motor_sn, command);
-    set_tacho_command_inx(motor_sn, TACHO_STOP);
+    while (ev3_tacho_init() < 1)
+        sleep(1);
+
+    ev3_search_tacho_plugged_in(PORT_LEFT, 0, &sn_motor_left, 0);
+    ev3_search_tacho_plugged_in(PORT_RIGHT, 0, &sn_motor_right, 0);
+    get_tacho_max_speed(sn_motor_left, &max_speed_left);
+    get_tacho_max_speed(sn_motor_right, &max_speed_right);
+    max_speed = max_speed_right > max_speed_left ? max_speed_left : max_speed_right;
 }
 
 // Can call with speed = 0 to use max_speed without knowing its value
@@ -31,20 +38,10 @@ static int _validate_speed(int speed)
     return speed;
 }
 
-// Init the motors and set max_speed
-void init_movement()
+static void _run_motor_forever(uint8_t sn_motor, int speed)
 {
-    int max_speed_left;
-    int max_speed_right;
-
-    while (ev3_tacho_init() < 1)
-        sleep(1);
-
-    ev3_search_tacho_plugged_in(PORT_LEFT, 0, &motor_left, 0);
-    ev3_search_tacho_plugged_in(PORT_RIGHT, 0, &motor_right, 0);
-    get_tacho_max_speed(motor_left, &max_speed_left);
-    get_tacho_max_speed(motor_right, &max_speed_right);
-    max_speed = max_speed_right > max_speed_left ? max_speed_left : max_speed_right;
+    set_tacho_speed_sp(sn_motor, speed);
+    set_tacho_command_inx(sn_motor, TACHO_RUN_FOREVER);
 }
 
 // Can be called with speed = 0 to use max_speed
@@ -53,34 +50,64 @@ void move(int speed)
     speed = _validate_speed(speed);
     if (speed == 0)
         return;
-    _run_motor_forever(motor_right, speed);
-    _run_motor_forever(motor_left, speed);
+    _run_motor_forever(sn_motor_right, speed);
+    _run_motor_forever(sn_motor_left, speed);
+}
+
+static void _stop_motor(uint8_t sn_motor, uint8_t command)
+{
+    set_tacho_stop_action_inx(sn_motor, command);
+    set_tacho_command_inx(sn_motor, TACHO_STOP);
 }
 
 void stop(uint8_t command)
 {
-    _stop_motor(motor_right, command);
-    _stop_motor(motor_left, command);
+    _stop_motor(sn_motor_right, command);
+    _stop_motor(sn_motor_left, command);
 }
 
-// Move only the left motor
-// Can be called with speed = 0 to use max_speed
-void turn_left_motor(int speed)
+static void _run_motor_only(int speed, uint8_t sn_motor)
 {
     speed = _validate_speed(speed);
     if (speed == 0)
         return;
-    _stop_motor(motor_right, TACHO_COAST);
-    _run_motor_forever(motor_left, speed);
+    uint8_t sn_other_motor = sn_motor == sn_motor_right ? sn_motor_right : sn_motor_left;
+    _stop_motor(sn_other_motor, TACHO_COAST);
+    _run_motor_forever(sn_motor, speed);
 }
 
-// Move only the right motor
 // Can be called with speed = 0 to use max_speed
-void turn_right_motor(int speed)
+void run_left_motor_only(int speed)
 {
-    speed = _validate_speed(speed);
-    if (speed == 0)
-        return;
-    _stop_motor(motor_left, TACHO_COAST);
-    _run_motor_forever(motor_right, speed);
+    _run_motor_only(speed, sn_motor_left);
+}
+
+// Can be called with speed = 0 to use max_speed
+void run_right_motor_only(int speed)
+{
+    _run_motor_only(speed, sn_motor_right);
+}
+
+static void _turn_90d(int speed, uint8_t sn_motor){
+    int start_angle;
+    get_gyro_value(&start_angle);
+    int current_angle = start_angle;
+
+    _run_motor_only(speed, sn_motor);
+    while (abs(abs(start_angle - current_angle) % 360 - 90) > ANGLE_THRESHOLD)
+    {
+        get_gyro_value(&start_angle);
+        // printf("gyro angle: %d \n", abs(start_angle - current_angle) % 360);
+    }
+    _stop_motor(sn_motor, TACHO_HOLD);
+}
+
+void turn_90d_left(int speed)
+{
+    _turn_90d(speed, sn_motor_right);
+}
+
+void turn_90d_right(int speed)
+{
+    _turn_90d(speed, sn_motor_left);
 }

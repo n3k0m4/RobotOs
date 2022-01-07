@@ -35,6 +35,7 @@ BUILD_DIR 	= ./build
 SOURCE_DIR 	= ./source
 
 OBJS = $(BUILD_DIR)/movement.o \
+		$(BUILD_DIR)/sensors.o \
 		$(BUILD_DIR)/main.o
 
 #OBJS = $(BUILD_DIR)/main.o
