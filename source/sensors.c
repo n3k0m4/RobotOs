@@ -1,4 +1,5 @@
 #include "sensors.h"
+#include "stdlib.h"
 
 uint8_t sn_gyro;
 uint8_t sn_sonar;
@@ -15,26 +16,35 @@ void init_sensors()
 }
 
 // Value in (0-2550) cm
-void get_gyro_value(int *value_buf){
+void get_gyro_value(int *value_buf)
+{
     get_sensor_value(0, sn_gyro, value_buf);
 }
 
 // Value in (0-2550) cm
-void get_sonar_value(int *value_buf){
+void get_sonar_value(int *value_buf)
+{
     get_sensor_value(0, sn_sonar, value_buf);
 }
 
 // Value in (0-100)
-void get_color_value(int *value_buf){
+void get_color_value(int *value_buf)
+{
     get_sensor_value(0, sn_color, value_buf);
 }
 
-
-
 bool check_pressed()
 {
-	int val;
-	return (get_sensor_value(0,sn_touch,&val)&&(val!=0));
+    int val;
+    return (get_sensor_value(0, sn_touch, &val) && (val != 0));
 }
 
-
+bool detect_accident(int previous_angle, int current_angle)
+{
+    if (abs(previous_angle - current_angle) > ACCIDENT_THRESHOLD)
+    {
+        //last_gyro_val = curr_gyro_val; Use last_gyro_val to re-calibrate
+        return true;
+    }
+    return false;
+}

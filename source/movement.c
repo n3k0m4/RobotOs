@@ -3,8 +3,6 @@
 #include "sensors.h"
 #include "utils.h"
 
-#define ANGLE_THRESHOLD 10
-
 uint8_t sn_motor_left;
 uint8_t sn_motor_right;
 int max_speed;
@@ -18,15 +16,14 @@ void init_movement()
 
     while (ev3_tacho_init() < 1)
         sleep(1);
-		
+
     ev3_search_tacho_plugged_in(PORT_LEFT, 0, &sn_motor_left, 0);
     ev3_search_tacho_plugged_in(PORT_RIGHT, 0, &sn_motor_right, 0);
     get_tacho_max_speed(sn_motor_left, &max_speed_left);
     get_tacho_max_speed(sn_motor_right, &max_speed_right);
     max_speed = max_speed_right > max_speed_left ? max_speed_left : max_speed_right;
-    ev3_search_tacho_plugged_in(PORT_OBST, 0, &sn_obstacle, 0);
+    ev3_search_tacho_plugged_in(PORT_OBSTACLE, 0, &sn_obstacle, 0);
 }
-
 
 // Can call with speed = 0 to use max_speed without knowing its value
 // If speed is not valid, 0 is returned
@@ -93,7 +90,8 @@ void run_right_motor_only(int speed)
     _run_motor_only(speed, sn_motor_right);
 }
 
-static void _turn_90d(int speed, uint8_t sn_motor){
+static void _turn_90d(int speed, uint8_t sn_motor)
+{
     int start_angle;
     get_gyro_value(&start_angle);
     int current_angle = start_angle;
@@ -119,18 +117,17 @@ void turn_90d_right(int speed)
 
 void release_obstacle()
 {
-    int obstacle_max_speed;
-    get_tacho_max_speed(sn_obstacle, &obstacle_max_speed);
-	_run_motor_forever(sn_obstacle, 600);
-	sleep(1);
+    _run_motor_forever(sn_obstacle, 450);
+    sleep(1);
     _stop_motor(sn_obstacle, TACHO_COAST);
-	_run_motor_forever(sn_obstacle, -200);
-	sleep(1);
+    _run_motor_forever(sn_obstacle, -450);
+    sleep(1);
     _stop_motor(sn_obstacle, TACHO_COAST);
-	printf("*** Obstacle released ***\n");	
+    printf("*** Obstacle released ***\n");
 }
 
-int turn_to_angle(int destination_angle, int thres){
+int turn_to_angle(int destination_angle, int thres)
+{
     stop(TACHO_COAST);
     int current_angle;
     get_gyro_value(&current_angle);
