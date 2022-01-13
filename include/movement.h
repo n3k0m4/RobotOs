@@ -9,6 +9,7 @@
 
 #define PORT_LEFT OUTPUT_B
 #define PORT_RIGHT OUTPUT_C
+#define PORT_OBST OUTPUT_A
 
 void init_movement();
 void move(int speed);
