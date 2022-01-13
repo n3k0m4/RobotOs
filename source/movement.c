@@ -111,3 +111,15 @@ void turn_90d_right(int speed)
 {
     _turn_90d(speed, sn_motor_left);
 }
+
+// void _test(){
+//     int a; int b;
+//     get_tacho_max_speed(sn_motor_right, &a);
+//     get_tacho_max_speed(sn_motor_left, &b);
+//     printf("%d, %d\n", a, b);
+//     while(true){
+//         get_tacho_speed(sn_motor_right, &a);
+//         get_tacho_speed(sn_motor_left, &b);
+//         printf("%d, %d\n", a, b);
+//     }
+// }
