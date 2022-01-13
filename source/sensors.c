@@ -31,7 +31,7 @@ void get_color_value(int *value_buf){
 
 
 
-static bool _check_pressed()
+bool check_pressed()
 {
 	int val;
 	return (get_sensor_value(0,sn_touch,&val)&&(val!=0));

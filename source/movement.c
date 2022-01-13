@@ -1,6 +1,7 @@
 #include "stdlib.h"
 #include "movement.h"
 #include "sensors.h"
+#include "utils.h"
 
 #define ANGLE_THRESHOLD 10
 
@@ -41,6 +42,7 @@ static int _validate_speed(int speed)
     return speed;
 }
 
+//TODO: Same arguments order everywhere
 static void _run_motor_forever(uint8_t sn_motor, int speed)
 {
     set_tacho_speed_sp(sn_motor, speed);
@@ -74,7 +76,7 @@ static void _run_motor_only(int speed, uint8_t sn_motor)
     speed = _validate_speed(speed);
     if (speed == 0)
         return;
-    uint8_t sn_other_motor = sn_motor == sn_motor_right ? sn_motor_right : sn_motor_left;
+    uint8_t sn_other_motor = sn_motor == sn_motor_right ? sn_motor_left : sn_motor_right;
     _stop_motor(sn_other_motor, TACHO_COAST);
     _run_motor_forever(sn_motor, speed);
 }
@@ -119,7 +121,7 @@ void release_obstacle()
 {
     int obstacle_max_speed;
     get_tacho_max_speed(sn_obstacle, &obstacle_max_speed);
-	_run_motor_forever(sn_obstacle, 200);
+	_run_motor_forever(sn_obstacle, 600);
 	sleep(1);
     _stop_motor(sn_obstacle, TACHO_COAST);
 	_run_motor_forever(sn_obstacle, -200);
@@ -128,6 +130,26 @@ void release_obstacle()
 	printf("*** Obstacle released ***\n");	
 }
 
+int turn_to_angle(int destination_angle, int thres){
+    stop(TACHO_COAST);
+    int current_angle;
+    get_gyro_value(&current_angle);
+    int angle_to_turn = (destination_angle - current_angle) % 360;
+    uint8_t sn_motor = angle_to_turn >= 0 ? sn_motor_left : sn_motor_right;
+    uint8_t sn_other_motor = sn_motor == sn_motor_right ? sn_motor_left : sn_motor_right;
+    _run_motor_forever(sn_motor, 300);
+    _run_motor_forever(sn_other_motor, -300);
+    while (abs(angle_to_turn) > thres)
+    {
+        get_gyro_value(&current_angle);
+        angle_to_turn = (destination_angle - current_angle) % 360;
+        // printf("current: %d -- angle-to-turn: %d\n", current_angle, angle_to_turn);
+    }
+    stop(TACHO_HOLD);
+    SLEEP(500);
+    get_gyro_value(&current_angle);
+    return current_angle;
+}
 // void _test(){
 //     int a; int b;
 //     get_tacho_max_speed(sn_motor_right, &a);
