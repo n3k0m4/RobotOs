@@ -117,11 +117,14 @@ void turn_90d_right(int speed)
 
 void release_obstacle()
 {
+    int obstacle_max_speed;
+    get_tacho_max_speed(sn_obstacle, &obstacle_max_speed);
 	_run_motor_forever(sn_obstacle, 200);
-	sleep(500);
+	sleep(1);
+    _stop_motor(sn_obstacle, TACHO_COAST);
 	_run_motor_forever(sn_obstacle, -200);
-	sleep(500);
-	_stop_motor(sn_obstacle, TACHO_COAST);
+	sleep(1);
+    _stop_motor(sn_obstacle, TACHO_COAST);
 	printf("*** Obstacle released ***\n");	
 }
 

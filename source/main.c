@@ -57,15 +57,14 @@ int main(void)
     
     release_obstacle();
     
-    turn_90d_left(0);
-    while (true)
-    {
-    	if _check_pressed()
-    	{
-		turn_90_d_left(0);
-	}
-	sleep(1);
-    }
+    // turn_90d_left(0);
+    // while (true)
+    // {
+    // 	if (check_pressed())
+    // 	    turn_90_d_left(0);
+	// }
+	// sleep(1);
+    // }
 
     ev3_uninit();
     printf("*** ( EV3 ) Bye! ***\n");

@@ -18,6 +18,7 @@ void run_right_motor(int speed);
 void run_left_motor(int speed);
 void turn_90d_right(int speed);
 void turn_90d_left(int speed);
+void release_obstacle();
 // void _test();
 
 #endif
