@@ -53,7 +53,17 @@ int main(void)
     init_sensors();
     printf("*** Initialisation done ***\n");
     // SLEEP(5000);
-    always_left();
+    // always_left();
+
+    turn_90d_left(0);
+    while (true)
+    {
+    	if _check_pressed()
+    	{
+		turn_90_d_left(0);
+	}
+	sleep(1);
+    }
 
     ev3_uninit();
     printf("*** ( EV3 ) Bye! ***\n");
