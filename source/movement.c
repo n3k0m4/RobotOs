@@ -7,6 +7,7 @@
 uint8_t sn_motor_left;
 uint8_t sn_motor_right;
 int max_speed;
+uint8_t sn_obstacle;
 
 // Init the motors and set max_speed
 void init_movement()
@@ -16,13 +17,15 @@ void init_movement()
 
     while (ev3_tacho_init() < 1)
         sleep(1);
-
+		
     ev3_search_tacho_plugged_in(PORT_LEFT, 0, &sn_motor_left, 0);
     ev3_search_tacho_plugged_in(PORT_RIGHT, 0, &sn_motor_right, 0);
     get_tacho_max_speed(sn_motor_left, &max_speed_left);
     get_tacho_max_speed(sn_motor_right, &max_speed_right);
     max_speed = max_speed_right > max_speed_left ? max_speed_left : max_speed_right;
+    ev3_search_tacho_plugged_in(PORT_OBST, 0, &sn_obstacle, 0);
 }
+
 
 // Can call with speed = 0 to use max_speed without knowing its value
 // If speed is not valid, 0 is returned
@@ -110,6 +113,16 @@ void turn_90d_left(int speed)
 void turn_90d_right(int speed)
 {
     _turn_90d(speed, sn_motor_left);
+}
+
+void release_obstacle()
+{
+	_run_motor_forever(sn_obstacle, 200);
+	sleep(500);
+	_run_motor_forever(sn_obstacle, -200);
+	sleep(500);
+	_stop_motor(sn_obstacle, TACHO_COAST);
+	printf("*** Obstacle released ***\n");	
 }
 
 // void _test(){

@@ -54,7 +54,9 @@ int main(void)
     printf("*** Initialisation done ***\n");
     // SLEEP(5000);
     // always_left();
-
+    
+    release_obstacle();
+    
     turn_90d_left(0);
     while (true)
     {
