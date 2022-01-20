@@ -134,13 +134,16 @@ int turn_to_angle(int destination_angle, int thres)
     int angle_to_turn = (destination_angle - current_angle) % 360;
     uint8_t sn_motor = angle_to_turn >= 0 ? sn_motor_left : sn_motor_right;
     uint8_t sn_other_motor = sn_motor == sn_motor_right ? sn_motor_left : sn_motor_right;
-    _run_motor_forever(sn_motor, 300);
-    _run_motor_forever(sn_other_motor, -300);
+    int speed = max_speed;
+    _run_motor_forever(sn_motor, speed);
+    _run_motor_forever(sn_other_motor, -speed);
     while (abs(angle_to_turn) > thres)
     {
         get_gyro_value(&current_angle);
         angle_to_turn = (destination_angle - current_angle) % 360;
-        // printf("current: %d -- angle-to-turn: %d\n", current_angle, angle_to_turn);
+        speed = (int)(max_speed * ((float)abs(angle_to_turn) / 180));
+        _run_motor_forever(sn_motor, speed);
+        _run_motor_forever(sn_other_motor, -speed);
     }
     stop(TACHO_HOLD);
     SLEEP(500);
