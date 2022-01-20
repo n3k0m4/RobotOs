@@ -56,14 +56,23 @@ void move(int speed)
     _run_motor_forever(sn_motor_left, speed);
 }
 
-void move_separate(int speed_left, int speed_right)
+void enforce_move_angle_smooth(int angle, int speed)
 {
-    speed_left = _validate_speed(speed_left);
-    speed_right = _validate_speed(speed_right);
-    if (speed_left == 0 || speed_right == 0)
-        return;
-    _run_motor_forever(sn_motor_right, speed_right);
-    _run_motor_forever(sn_motor_left, speed_left);
+    int current_angle;
+    get_gyro_value(&current_angle);
+    // printf("Angle deviation: %d \n", abs(current_angle - angle));
+    int deviation = abs(current_angle - angle);
+    int reduced_speed = speed * (1 - (float) deviation / 90);
+    reduced_speed = _validate_speed(reduced_speed);
+    // printf("Reduced speed = %d for a %d deviation", reduced_speed, deviation);
+    if (current_angle > angle){
+        _run_motor_forever(sn_motor_right, speed);
+        _run_motor_forever(sn_motor_left, reduced_speed);
+    }
+    else{
+        _run_motor_forever(sn_motor_right, reduced_speed);
+        _run_motor_forever(sn_motor_left, speed);
+    }
 }
 
 static void _stop_motor(uint8_t sn_motor, uint8_t command)
