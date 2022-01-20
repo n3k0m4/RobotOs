@@ -66,3 +66,11 @@ int get_stable_sonar_value(int *value_buf){
     }
     *value_buf = sonar_value;
 }
+
+void calibrate_gyro(){
+    printf("Calibrating gyro ...\n");
+    set_sensor_mode(sn_gyro, GYRO_CAL_MODE);
+    SLEEP(1000);
+    set_sensor_mode(sn_gyro, GYRO_ANG_MODE);
+    SLEEP(500);
+}

@@ -62,6 +62,7 @@ void enforce_move_angle_smooth(int angle, int speed)
     get_gyro_value(&current_angle);
     // printf("Angle deviation: %d \n", abs(current_angle - angle));
     int deviation = abs(current_angle - angle);
+    printf("deviation = %d, current_angle = %d, angle_to_keep = %d\n", deviation,current_angle,angle);
     int reduced_speed = speed * (1 - (float) deviation / 90);
     reduced_speed = _validate_speed(reduced_speed);
     // printf("Reduced speed = %d for a %d deviation", reduced_speed, deviation);

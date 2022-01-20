@@ -45,7 +45,6 @@ void against_time()
     int angle_to_keep = current_angle;
     while (true)
     {
-        get_gyro_value(&current_angle);
         get_sonar_value(&sonar_value);
         enforce_move_angle_smooth(angle_to_keep, SPEED);
         if (nb_turns % 2 == 0)
@@ -70,10 +69,10 @@ void against_time()
             SLEEP(200);
             recover();
             SLEEP(200);
-            int old_angle = current_angle;
+
+            calibrate_gyro();
             get_gyro_value(&current_angle);
             angle_to_keep = current_angle;
-            printf("Corrected %d with wall.\n", abs(current_angle - old_angle + 90));
             nb_turns++;
         }
     }
