@@ -34,34 +34,6 @@ void recover()
     turn_to_angle(angle - 90, 5);
 }
 
-void always_left_old()
-{
-    int sonar_value;
-    int speed = 600;
-    int sonar_threshold = 15 * 10;
-    move(speed);
-    while (true)
-    {
-        get_sonar_value(&sonar_value);
-        printf("%d -- ", sonar_value);
-        if (sonar_value < sonar_threshold)
-        {
-            stop(TACHO_COAST);
-            printf("Turning left");
-            // turn_90d_left(speed);
-            recover();
-            SLEEP(750);
-            move(speed);
-            // get_sonar_value(&sonar_value);
-            // if (sonar_value < sonar_threshold){
-            //     printf("Nothing left, getting back");
-            //     turn_90d_right(speed);
-            //     SLEEP(500);
-            // }
-        }
-    }
-}
-
 void against_time()
 {
     int c = 0;
@@ -70,14 +42,13 @@ void against_time()
     const int SONAR_THRESHOLD = 20 * 10;
     int angle;
     get_gyro_value(&angle);
-    int dest_angle = angle;
-    // printf("Start angle = %d\n", angle);
+    printf("Start angle = %d\n", angle);
     move(SPEED);
     while (true)
     {
         // print_motor_speeds();
         get_sonar_value(&sonar_value);
-        if (c % 4 != 2)
+        if (c % 2 != 0)
         {
             if (sonar_value < SONAR_THRESHOLD)
             {
@@ -86,13 +57,13 @@ void against_time()
                 get_sonar_value(&sonar_value);
                 // printf("Sonar value after stop= %d\n", sonar_value);
 
-                dest_angle -= 90;
-                turn_to_angle(dest_angle, 5);
+                angle -= 90;
+                turn_to_angle(angle, 5);
                 c += 1;
 
-                SLEEP(200);
-                get_gyro_value(&angle);
-                // printf("Difference in angle= %d\n", abs(angle - dest_angle) % 360 );
+                // SLEEP(200);
+                // get_gyro_value(&angle);
+                // // printf("Difference in angle= %d\n", abs(angle - dest_angle) % 360 );
 
                 move(SPEED);
             }   
@@ -100,40 +71,12 @@ void against_time()
         else
         {
             recalibrate();
+            SLEEP(200);
+            int old_angle = angle;
+            get_gyro_value(&angle);
+            printf("Corrected with: %d\n", abs(angle - old_angle + 90));
             c += 1;
             move(SPEED);
-        }
-    }
-}
-
-void always_left(int start_angle)
-{
-    int sonar_value;
-    int speed = 0;
-    int sonar_threshold = 20 * 10;
-    printf("Start angle = %d\n", start_angle);
-    int dest_angle = start_angle;
-    // int current_angle;
-    move(speed);
-    while (true)
-    {
-        get_sonar_value(&sonar_value);
-        if (sonar_value < sonar_threshold)
-        {
-            printf("Sonar value before stop= %d\n", sonar_value);
-            stop(TACHO_COAST);
-            get_sonar_value(&sonar_value);
-            printf("Sonar value after stop= %d\n", sonar_value);
-
-            // dest_angle = (dest_angle - 90) % 360;
-            dest_angle -= 90;
-            turn_to_angle(dest_angle, 10);
-            // printf("angle = %d\n", current_angle % 360);
-            // printf("diff = %d\n", MODULO(current_angle - start_angle, 90));
-
-            // recover();
-            SLEEP(750); // not needed
-            move(speed);
         }
     }
 }
