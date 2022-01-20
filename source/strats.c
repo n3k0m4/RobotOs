@@ -192,7 +192,7 @@ int avoid_obstacle(int start_angle, int choose_dir)
 
 void recalibrate()
 {
-	if check_pressed()
+	if (check_pressed())
 	{
 		recover();
 	}
