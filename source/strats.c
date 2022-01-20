@@ -61,6 +61,7 @@ void always_left_old()
 }
 
 void against_time(){
+    int c = 0; 	
     int sonar_value;
     const int SPEED = 800; // DO NOT SET TO 0
     const int SONAR_THRESHOLD = 20 * 10;
@@ -73,22 +74,31 @@ void against_time(){
     {
         print_motor_speeds();
         get_sonar_value(&sonar_value);
-        if (sonar_value < SONAR_THRESHOLD)
-        {
-            // printf("Sonar value before stop= %d\n", sonar_value);
-            stop(TACHO_COAST);
-            get_sonar_value(&sonar_value);
-            // printf("Sonar value after stop= %d\n", sonar_value);
+	if (c % 4 != 2)
+	{
+        	if (sonar_value < SONAR_THRESHOLD)
+        	{
+            	// printf("Sonar value before stop= %d\n", sonar_value);
+            	stop(TACHO_COAST);
+            	get_sonar_value(&sonar_value);
+            	// printf("Sonar value after stop= %d\n", sonar_value);
 
-            dest_angle -= 90;
-            turn_to_angle(dest_angle, 5);
+            	dest_angle -= 90;
+            	turn_to_angle(dest_angle, 5);
+		c += 1;
 
-            SLEEP(200);
-            get_gyro_value(&angle);
-            // printf("Difference in angle= %d\n", abs(angle - dest_angle) % 360 );
+            	SLEEP(200);
+            	get_gyro_value(&angle);
+            	// printf("Difference in angle= %d\n", abs(angle - dest_angle) % 360 );
 
-            move(SPEED);
-        }
+            	move(SPEED);
+		}
+        }else
+	{
+		recalibrate();
+		c += 1;
+		move(SPEED);
+	}
     }
 }
 
