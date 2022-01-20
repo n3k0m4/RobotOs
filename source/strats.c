@@ -40,18 +40,17 @@ void against_time()
     int sonar_value;
     const int SPEED = 800; // DO NOT SET TO 0
     const int SONAR_THRESHOLD = 20 * 10;
-    int angle;
-    get_gyro_value(&angle);
-    printf("Start angle = %d\n", angle);
-    move(SPEED);
+    int current_angle;
+    int goal_angle;
+    get_gyro_value(&current_angle);
+    goal_angle = current_angle;
+    printf("Start angle = %d\n", current_angle);
     while (true)
     {
-        // print_motor_speeds();
-        printf("LOOP");
         get_sonar_value(&sonar_value);
-        get_gyro_value(&angle);
-        printf("%d \n", angle);
-        if (nb_turns % 2 != 0)
+        get_gyro_value(&current_angle);
+        move_inline_smooth(goal_angle, SPEED);
+        if (nb_turns % 2 == 0)
         {
             if (sonar_value < SONAR_THRESHOLD)
             {
@@ -59,21 +58,19 @@ void against_time()
                 stop(TACHO_HOLD);
                 // SLEEP();
                 get_sonar_value(&sonar_value);
-                if (sonar_value < SONAR_THRESHOLD)
-                {
-                    // printf("Sonar value before stop= %d\n", sonar_value);
-                    // stop(TACHO_COAST);
-                    // get_sonar_value(&sonar_value);
-                    // printf("Sonar value after stop= %d\n", sonar_value);
 
-                    angle -= 90;
-                    turn_to_angle(angle, 5);
-                    nb_turns++;
+                // printf("Sonar value before stop= %d\n", sonar_value);
+                // stop(TACHO_COAST);
+                // get_sonar_value(&sonar_value);
+                // printf("Sonar value after stop= %d\n", sonar_value);
 
-                    // SLEEP(200);
-                    // get_gyro_value(&angle);
-                    // // printf("Difference in angle= %d\n", abs(angle - dest_angle) % 360 );
-                }
+                goal_angle -= 90;
+                turn_to_angle(goal_angle, 5);
+                nb_turns++;
+
+                // SLEEP(200);
+                // get_gyro_value(&angle);
+                // // printf("Difference in angle= %d\n", abs(angle - dest_angle) % 360 );
                 move(SPEED);
             }
         }
@@ -83,11 +80,11 @@ void against_time()
                 continue;
             recover();
             SLEEP(200);
-            int old_angle = angle;
-            get_gyro_value(&angle);
-            printf("Corrected with: %d\n", abs(angle - old_angle + 90));
+            int old_angle = current_angle;
+            get_gyro_value(&current_angle);
+            goal_angle = current_angle;
+            printf("Corrected %d with wall.\n", abs(current_angle - old_angle + 90));
             nb_turns++;
-            move(SPEED);
         }
     }
 }
@@ -158,14 +155,36 @@ int avoid_obstacle(int start_angle, int choose_dir)
     }
 }
 
-void keep_inline(int angle)
+void keep_inline(int angle, int speed)
 {
     int current_angle;
     get_gyro_value(&current_angle);
-    if (abs(current_angle - angle) > INLINE_THRESHOLD)
+    // printf("Angle deviation: %d \n", abs(current_angle - angle));
+    int deviation = abs(current_angle - angle);
+    if (deviation > INLINE_THRESHOLD)
     {
         stop(TACHO_COAST);
-        turn_to_angle(angle, 5);
-        move(500);
+        SLEEP(1000);
+        turn_to_angle(angle, 3);
+        SLEEP(1000);
+        get_gyro_value(&current_angle);
+        printf("Corrected %d with keep_inline.\n", abs(deviation - abs(current_angle - angle)));
+        move(speed);
+    }
+}
+
+void move_inline_smooth(int angle, int speed)
+{
+    int current_angle;
+    get_gyro_value(&current_angle);
+    // printf("Angle deviation: %d \n", abs(current_angle - angle));
+    int deviation = abs(current_angle - angle);
+    int reduced_speed = speed * (1 - (float) deviation / 90);
+    // printf("Reduced speed = %d for a %d deviation", reduced_speed, deviation);
+    if (current_angle > angle){
+        move_separate(reduced_speed, speed);
+    }
+    else{
+        move_separate(speed, reduced_speed);
     }
 }

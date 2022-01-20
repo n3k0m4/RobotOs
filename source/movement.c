@@ -56,6 +56,16 @@ void move(int speed)
     _run_motor_forever(sn_motor_left, speed);
 }
 
+void move_separate(int speed_left, int speed_right)
+{
+    speed_left = _validate_speed(speed_left);
+    speed_right = _validate_speed(speed_right);
+    if (speed_left == 0 || speed_right == 0)
+        return;
+    _run_motor_forever(sn_motor_right, speed_right);
+    _run_motor_forever(sn_motor_left, speed_left);
+}
+
 static void _stop_motor(uint8_t sn_motor, uint8_t command)
 {
     set_tacho_stop_action_inx(sn_motor, command);

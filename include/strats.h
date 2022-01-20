@@ -6,6 +6,7 @@
 #include "utils.h"
 bool recover_accident(int previous_angle, int current_angle);
 void against_time();
-void keep_inline();
+void keep_inline(int angle, int speed);
+void move_inline_smooth(int angle, int speed);
 
 #endif

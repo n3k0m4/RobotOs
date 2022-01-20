@@ -24,11 +24,8 @@ int main(void)
     init_sensors();
     get_gyro_value(&gyro_value);
     printf("*** Initialisation done ***\n");
-    while (1)
-    {
-        move(500);
-        keep_inline(gyro_value);
-    }
+
+    against_time();
 
     ev3_uninit();
     printf("*** ( EV3 ) Bye! ***\n");
