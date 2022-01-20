@@ -7,5 +7,6 @@
 bool recover_accident(int previous_angle, int current_angle);
 void against_time();
 void recalibrate();
+void keep_inline();
 
 #endif
