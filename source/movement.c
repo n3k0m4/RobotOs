@@ -126,7 +126,7 @@ void release_obstacle()
     printf("*** Obstacle released ***\n");
 }
 
-int turn_to_angle(int destination_angle, int thres)
+void turn_to_angle(int destination_angle, int thres)
 {
     stop(TACHO_COAST);
     int current_angle;
@@ -146,9 +146,14 @@ int turn_to_angle(int destination_angle, int thres)
         _run_motor_forever(sn_other_motor, -speed);
     }
     stop(TACHO_HOLD);
-    SLEEP(500);
-    get_gyro_value(&current_angle);
-    return current_angle;
+}
+
+void print_motor_speeds(){
+    int left;
+    int right;
+    get_tacho_speed(sn_motor_right, &left);
+    get_tacho_speed(sn_motor_left, &right);
+    printf("%d %d\n", left, right);
 }
 // void _test(){
 //     int a; int b;

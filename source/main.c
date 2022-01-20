@@ -13,15 +13,8 @@ int main(void)
     init_movement();
     init_sensors();
     printf("*** Initialisation done ***\n");
-    
-    get_gyro_value(&last_gyro_value);
-    while (1)
-    {
-        get_gyro_value(&gyro_value);
-        move(500);
-        recover_accident(last_gyro_value, gyro_value);
-        SLEEP(1);
-    }
+
+    against_time();
     ev3_uninit();
     printf("*** ( EV3 ) Bye! ***\n");
 

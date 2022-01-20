@@ -1,4 +1,6 @@
 #include "strats.h"
+#include <stdlib.h>
+
 
 static void _re_calibrate(int gyro_angle)
 {
@@ -56,6 +58,38 @@ void always_left_old()
     }
 }
 
+void against_time(){
+    int sonar_value;
+    const int SPEED = 800; // DO NOT SET TO 0
+    const int SONAR_THRESHOLD = 20 * 10;
+    int angle;
+    get_gyro_value(&angle);
+    int dest_angle = angle;
+    // printf("Start angle = %d\n", angle);
+    move(SPEED);
+    while (true)
+    {
+        print_motor_speeds();
+        get_sonar_value(&sonar_value);
+        if (sonar_value < SONAR_THRESHOLD)
+        {
+            // printf("Sonar value before stop= %d\n", sonar_value);
+            stop(TACHO_COAST);
+            get_sonar_value(&sonar_value);
+            // printf("Sonar value after stop= %d\n", sonar_value);
+
+            dest_angle -= 90;
+            turn_to_angle(dest_angle, 5);
+
+            SLEEP(200);
+            get_gyro_value(&angle);
+            // printf("Difference in angle= %d\n", abs(angle - dest_angle) % 360 );
+
+            move(SPEED);
+        }
+    }
+}
+
 void always_left(int start_angle)
 {
     int sonar_value;
@@ -63,7 +97,7 @@ void always_left(int start_angle)
     int sonar_threshold = 20 * 10;
     printf("Start angle = %d\n", start_angle);
     int dest_angle = start_angle;
-    int current_angle;
+    // int current_angle;
     move(speed);
     while (true)
     {
@@ -77,9 +111,9 @@ void always_left(int start_angle)
 
             // dest_angle = (dest_angle - 90) % 360;
             dest_angle -= 90;
-            current_angle = turn_to_angle(dest_angle, 10);
+            turn_to_angle(dest_angle, 10);
             // printf("angle = %d\n", current_angle % 360);
-            printf("diff = %d\n", MODULO(current_angle - start_angle, 90));
+            // printf("diff = %d\n", MODULO(current_angle - start_angle, 90));
 
             // recover();
             SLEEP(750); // not needed

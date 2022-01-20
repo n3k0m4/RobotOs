@@ -5,5 +5,5 @@
 #include "sensors.h"
 #include "utils.h"
 void recover_accident(int previous_angle, int current_angle);
-
+void against_time();
 #endif

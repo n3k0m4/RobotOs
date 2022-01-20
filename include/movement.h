@@ -20,7 +20,8 @@ void run_left_motor(int speed);
 void turn_90d_right(int speed);
 void turn_90d_left(int speed);
 void release_obstacle();
-int turn_to_angle(int destination_angle, int thres);
+void turn_to_angle(int destination_angle, int thres);
+void print_motor_speeds();
 // void _test();
 
 #endif
