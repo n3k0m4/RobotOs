@@ -34,6 +34,19 @@ void recover()
     turn_to_angle(angle - 90, 5);
 }
 
+bool _is_a_non_moving_object_ahead(int previous_sonar_value, int threshold){
+    int sonar_value;
+    int nb_constant_measures = 0;
+    while (nb_constant_measures < 3){
+        SLEEP(500);
+        get_sonar_value(&sonar_value);
+        if (previous_sonar_value == sonar_value) nb_constant_measures++;
+        else nb_constant_measures = 0;
+        previous_sonar_value = sonar_value;
+    }
+    return sonar_value <= threshold;
+}
+
 void against_time()
 {
     int nb_turns = 0;
@@ -56,28 +69,20 @@ void against_time()
             {
                 // Check again in 500 ms (In case it's a moving target (e.g. adversary robot))
                 stop(TACHO_HOLD);
-                // SLEEP();
-                get_sonar_value(&sonar_value);
-
-                // printf("Sonar value before stop= %d\n", sonar_value);
-                // stop(TACHO_COAST);
-                // get_sonar_value(&sonar_value);
-                // printf("Sonar value after stop= %d\n", sonar_value);
-
-                goal_angle -= 90;
-                turn_to_angle(goal_angle, 5);
-                nb_turns++;
-
-                // SLEEP(200);
-                // get_gyro_value(&angle);
-                // // printf("Difference in angle= %d\n", abs(angle - dest_angle) % 360 );
-                move(SPEED);
+                SLEEP(1000);
+                if (sonar_value < SONAR_THRESHOLD)
+                {
+                    goal_angle -= 90;
+                    turn_to_angle(goal_angle, 5);
+                    nb_turns++;
+                }
             }
         }
         else
         {
             if (!check_pressed())
                 continue;
+            SLEEP(200);
             recover();
             SLEEP(200);
             int old_angle = current_angle;
