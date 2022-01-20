@@ -7,6 +7,7 @@
 #include "ev3_sensor.h"
 
 #define ACCIDENT_THRESHOLD 15
+#define INLINE_THRESHOLD 10
 
 void init_sensors();
 void get_gyro_value(int *value_buf);

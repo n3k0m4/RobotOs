@@ -7,12 +7,12 @@ static void _re_calibrate(int gyro_angle)
     turn_to_angle(gyro_angle, ANGLE_THRESHOLD);
 }
 
-bool recover_accident(int *previous_angle, int *current_angle)
+bool recover_accident(int previous_angle, int current_angle)
 {
 
-    if (detect_accident(*previous_angle, *current_angle))
+    if (detect_accident(previous_angle, current_angle))
     {
-        _re_calibrate(*previous_angle);
+        _re_calibrate(previous_angle);
         return true;
     }
     return false;
@@ -155,5 +155,17 @@ int avoid_obstacle(int start_angle, int choose_dir)
             printf("right better \n");
             return -1;
         }
+    }
+}
+
+void keep_inline(int angle)
+{
+    int current_angle;
+    get_gyro_value(&current_angle);
+    if (abs(current_angle - angle) > INLINE_THRESHOLD)
+    {
+        stop(TACHO_COAST);
+        turn_to_angle(angle, 5);
+        move(500);
     }
 }
