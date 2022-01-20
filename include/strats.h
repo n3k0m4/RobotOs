@@ -4,9 +4,8 @@
 #include "movement.h"
 #include "sensors.h"
 #include "utils.h"
-bool recover_accident(int *previous_angle, int *current_angle);
+bool recover_accident(int previous_angle, int current_angle);
 void against_time();
 void recalibrate();
 
 #endif
-

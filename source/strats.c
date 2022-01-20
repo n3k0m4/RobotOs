@@ -7,12 +7,12 @@ static void _re_calibrate(int gyro_angle)
     turn_to_angle(gyro_angle, ANGLE_THRESHOLD);
 }
 
-bool recover_accident(int *previous_angle, int *current_angle)
+bool recover_accident(int previous_angle, int current_angle)
 {
 
-    if (detect_accident(*previous_angle, *current_angle))
+    if (detect_accident(previous_angle, current_angle))
     {
-        _re_calibrate(*previous_angle);
+        _re_calibrate(previous_angle);
         return true;
     }
     return false;
@@ -66,7 +66,7 @@ void against_time()
                 // // printf("Difference in angle= %d\n", abs(angle - dest_angle) % 360 );
 
                 move(SPEED);
-            }   
+            }
         }
         else
         {
@@ -153,4 +153,16 @@ void recalibrate()
     {
     }
     recover();
+}
+
+void keep_inline(int angle)
+{
+    int current_angle;
+    get_gyro_value(&current_angle);
+    if (abs(current_angle - angle) > INLINE_THRESHOLD)
+    {
+        stop(TACHO_COAST);
+        turn_to_angle(angle, 5);
+        move(500);
+    }
 }
