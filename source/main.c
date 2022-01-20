@@ -17,7 +17,9 @@ int main(void)
     {
         get_gyro_value(&gyro_value);
         move(500);
-        recover_accident(last_gyro_value, gyro_value);
+        bool accident = recover_accident(&last_gyro_value, &gyro_value);
+        if (accident == false)
+            last_gyro_value = gyro_value;
         SLEEP(1);
     }
     printf("*** Initialisation done ***\n");

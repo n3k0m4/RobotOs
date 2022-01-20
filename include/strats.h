@@ -4,6 +4,6 @@
 #include "movement.h"
 #include "sensors.h"
 #include "utils.h"
-void recover_accident(int previous_angle, int current_angle);
+bool recover_accident(int *previous_angle, int *current_angle);
 
 #endif
