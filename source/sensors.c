@@ -1,4 +1,5 @@
 #include "sensors.h"
+#include "utils.h"
 #include "stdlib.h"
 
 uint8_t sn_gyro;
@@ -47,4 +48,20 @@ bool detect_accident(int previous_angle, int current_angle)
         return true;
     }
     return false;
+}
+
+// Maybe use same signature as get_sonar_value
+int get_stable_sonar_value(int previous_sonar_value){
+    const int ERROR_THRESHOLD = 5; // 5 mm
+    int sonar_value;
+    int nb_constant_measures = 0;
+    while (nb_constant_measures < 2){
+        SLEEP(500);
+        get_sonar_value(&sonar_value);
+        printf("%d\n", sonar_value);
+        if (abs(previous_sonar_value - sonar_value) < ERROR_THRESHOLD) nb_constant_measures++;
+        else nb_constant_measures = 0;
+        previous_sonar_value = sonar_value;
+    }
+    return sonar_value;
 }

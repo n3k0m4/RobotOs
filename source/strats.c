@@ -34,19 +34,6 @@ void recover()
     turn_to_angle(angle - 90, 5);
 }
 
-bool _is_a_non_moving_object_ahead(int previous_sonar_value, int threshold){
-    int sonar_value;
-    int nb_constant_measures = 0;
-    while (nb_constant_measures < 3){
-        SLEEP(500);
-        get_sonar_value(&sonar_value);
-        if (previous_sonar_value == sonar_value) nb_constant_measures++;
-        else nb_constant_measures = 0;
-        previous_sonar_value = sonar_value;
-    }
-    return sonar_value <= threshold;
-}
-
 void against_time()
 {
     int nb_turns = 0;
@@ -67,9 +54,8 @@ void against_time()
         {
             if (sonar_value < SONAR_THRESHOLD)
             {
-                // Check again in 500 ms (In case it's a moving target (e.g. adversary robot))
                 stop(TACHO_HOLD);
-                SLEEP(1000);
+                sonar_value = get_stable_sonar_value(sonar_value);
                 if (sonar_value < SONAR_THRESHOLD)
                 {
                     goal_angle -= 90;
