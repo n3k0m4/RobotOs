@@ -8,13 +8,15 @@ static void _re_calibrate(int gyro_angle)
     turn_to_angle(gyro_angle, ANGLE_THRESHOLD);
 }
 
-void recover_accident(int previous_angle, int current_angle)
+bool recover_accident(int *previous_angle, int *current_angle)
 {
 
-    if (detect_accident(previous_angle, current_angle))
+    if (detect_accident(*previous_angle, *current_angle))
     {
-        _re_calibrate(previous_angle);
+        _re_calibrate(*previous_angle);
+        return true;
     }
+    return false;
 }
 
 void recover()
@@ -187,3 +189,14 @@ int avoid_obstacle(int start_angle, int choose_dir)
         }
     }
 }
+
+void recalibrate()
+{
+	if check_pressed()
+	{
+		recover();
+	}
+}
+
+
+

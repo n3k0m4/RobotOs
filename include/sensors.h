@@ -14,5 +14,5 @@ void get_sonar_value(int *value_buf);
 void get_color_value(int *value_buf);
 void get_color_value2(int *value_buf1, int *value_buf2, int *value_buf3);
 bool check_pressed();
-bool detect_accident();
+bool detect_accident(int previous_angle, int current_angle);
 #endif
