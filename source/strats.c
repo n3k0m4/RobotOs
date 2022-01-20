@@ -36,7 +36,7 @@ void recover()
 
 void against_time()
 {
-    int c = 0;
+    int nb_turns = 0;
     int sonar_value;
     const int SPEED = 800; // DO NOT SET TO 0
     const int SONAR_THRESHOLD = 20 * 10;
@@ -47,35 +47,46 @@ void against_time()
     while (true)
     {
         // print_motor_speeds();
+        printf("LOOP");
         get_sonar_value(&sonar_value);
-        if (c % 2 != 0)
+        get_gyro_value(&angle);
+        printf("%d \n", angle);
+        if (nb_turns % 2 != 0)
         {
             if (sonar_value < SONAR_THRESHOLD)
             {
-                // printf("Sonar value before stop= %d\n", sonar_value);
-                stop(TACHO_COAST);
+                // Check again in 500 ms (In case it's a moving target (e.g. adversary robot))
+                stop(TACHO_HOLD);
+                // SLEEP();
                 get_sonar_value(&sonar_value);
-                // printf("Sonar value after stop= %d\n", sonar_value);
+                if (sonar_value < SONAR_THRESHOLD)
+                {
+                    // printf("Sonar value before stop= %d\n", sonar_value);
+                    // stop(TACHO_COAST);
+                    // get_sonar_value(&sonar_value);
+                    // printf("Sonar value after stop= %d\n", sonar_value);
 
-                angle -= 90;
-                turn_to_angle(angle, 5);
-                c += 1;
+                    angle -= 90;
+                    turn_to_angle(angle, 5);
+                    nb_turns++;
 
-                // SLEEP(200);
-                // get_gyro_value(&angle);
-                // // printf("Difference in angle= %d\n", abs(angle - dest_angle) % 360 );
-
+                    // SLEEP(200);
+                    // get_gyro_value(&angle);
+                    // // printf("Difference in angle= %d\n", abs(angle - dest_angle) % 360 );
+                }
                 move(SPEED);
-            }   
+            }
         }
         else
         {
-            recalibrate();
+            if (!check_pressed())
+                continue;
+            recover();
             SLEEP(200);
             int old_angle = angle;
             get_gyro_value(&angle);
             printf("Corrected with: %d\n", abs(angle - old_angle + 90));
-            c += 1;
+            nb_turns++;
             move(SPEED);
         }
     }
@@ -145,12 +156,4 @@ int avoid_obstacle(int start_angle, int choose_dir)
             return -1;
         }
     }
-}
-
-void recalibrate()
-{
-    while (!check_pressed())
-    {
-    }
-    recover();
 }
