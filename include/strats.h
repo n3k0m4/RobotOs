@@ -5,5 +5,6 @@
 #include "sensors.h"
 #include "utils.h"
 bool recover_accident(int *previous_angle, int *current_angle);
+void recalibrate();
 
 #endif
