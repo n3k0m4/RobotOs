@@ -10,6 +10,6 @@ void keep_inline(int angle, int speed);
 void move_inline_smooth(int angle, int speed);
 void count_distance();
 void detect_obstacle();
-bool _is_obtacle(int last_turn_position, int threshold);
+bool _is_obstacle(int last_turn_position, int threshold);
 
 #endif

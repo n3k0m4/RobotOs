@@ -197,7 +197,7 @@ void move_inline_smooth(int angle, int speed)
     }
 }
 
-bool _is_obtacle(int last_turn_position, int threshold)
+bool _is_obstacle(int last_turn_position, int threshold)
 {
     int curr_position;
     //int count_per_rot; no need for it as it is always 360 for motors

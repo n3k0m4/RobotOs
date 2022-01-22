@@ -29,7 +29,7 @@ int main(void)
     while (1)
     {
         move(500);
-        if (_is_obtacle(starting_motor_position, 120))
+        if (_is_obstacle(starting_motor_position, 120))
         {
             stop(TACHO_COAST);
         }
