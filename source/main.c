@@ -18,14 +18,22 @@ int main(void)
     sa.sa_handler = stop_handler;
     sigaction(SIGINT, &sa, NULL);
     int gyro_value;
-    int last_gyro_value;
+    int starting_motor_position;
     printf("*** ( EV3 ) Hello! ***\n");
     init_movement();
     init_sensors();
     get_gyro_value(&gyro_value);
     printf("*** Initialisation done ***\n");
-
-    against_time();
+    get_left_motor_position(&starting_motor_position);
+    //against_time();
+    while (1)
+    {
+        move(500);
+        if (_is_obtacle(starting_motor_position, 120))
+        {
+            stop(TACHO_COAST);
+        }
+    }
 
     ev3_uninit();
     printf("*** ( EV3 ) Bye! ***\n");

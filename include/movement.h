@@ -25,6 +25,8 @@ void release_obstacle();
 void turn_to_angle(int destination_angle, int thres);
 void print_motor_speeds();
 
+void get_left_motor_position(int *position);
+void get_right_motor_position(int *position);
 // void _test();
 
 #endif

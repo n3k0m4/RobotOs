@@ -34,6 +34,23 @@ void recover()
     turn_to_angle(angle - 90, 5);
 }
 
+bool _is_a_non_moving_object_ahead(int previous_sonar_value, int threshold)
+{
+    int sonar_value;
+    int nb_constant_measures = 0;
+    while (nb_constant_measures < 3)
+    {
+        SLEEP(500);
+        get_sonar_value(&sonar_value);
+        if (previous_sonar_value == sonar_value)
+            nb_constant_measures++;
+        else
+            nb_constant_measures = 0;
+        previous_sonar_value = sonar_value;
+    }
+    return sonar_value <= threshold;
+}
+
 void against_time()
 {
     const int SPEED = 800; // DO NOT SET TO 0
@@ -63,7 +80,7 @@ void against_time()
         }
         else
         {
-            // TODO: Have get_stable_sonar_value logic here too 
+            // TODO: Have get_stable_sonar_value logic here too
             if (!check_pressed())
                 continue;
             SLEEP(200);
@@ -160,4 +177,34 @@ void keep_inline(int angle, int speed)
         printf("Corrected %d with keep_inline.\n", abs(deviation - abs(current_angle - angle)));
         move(speed);
     }
+}
+
+void move_inline_smooth(int angle, int speed)
+{
+    int current_angle;
+    get_gyro_value(&current_angle);
+    // printf("Angle deviation: %d \n", abs(current_angle - angle));
+    int deviation = abs(current_angle - angle);
+    int reduced_speed = speed * (1 - (float)deviation / 90);
+    // printf("Reduced speed = %d for a %d deviation", reduced_speed, deviation);
+    if (current_angle > angle)
+    {
+        move_separate(reduced_speed, speed);
+    }
+    else
+    {
+        move_separate(speed, reduced_speed);
+    }
+}
+
+bool _is_obtacle(int last_turn_position, int threshold)
+{
+    int curr_position;
+    //int count_per_rot; no need for it as it is always 360 for motors
+    get_left_motor_position(&curr_position);
+    printf("the differnce is  %d", curr_position - last_turn_position);
+    //printf("the difference is %d\n ", (double)(last_turn_position - curr_position) / 2 * PI * 360);
+    if ((curr_position - last_turn_position) / 2 * PI * 360 > threshold)
+        return true;
+    return false;
 }

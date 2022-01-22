@@ -168,12 +168,31 @@ void turn_to_angle(int destination_angle, int thres)
     stop(TACHO_HOLD);
 }
 
-void print_motor_speeds(){
+void print_motor_speeds()
+{
     int left;
     int right;
     get_tacho_speed(sn_motor_right, &left);
     get_tacho_speed(sn_motor_left, &right);
     printf("%d %d\n", left, right);
+}
+/*
+uint8_t get_left_motor()
+{
+    return sn_motor_left;
+}
+uint8_t get_right_motor()
+{
+    return sn_motor_right;
+}
+*/
+void get_left_motor_position(int *position)
+{
+    get_tacho_position(sn_motor_left, position);
+}
+void get_right_motor_position(int *position)
+{
+    get_tacho_position(sn_motor_right, position);
 }
 // void _test(){
 //     int a; int b;
