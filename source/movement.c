@@ -56,7 +56,7 @@ void move(int speed)
     _run_motor_forever(sn_motor_left, speed);
 }
 
-void enforce_move_angle_smooth(int angle, int speed)
+void move_keeping_angle(int angle, int speed)
 {
     int current_angle;
     get_gyro_value(&current_angle);
@@ -110,29 +110,22 @@ void run_right_motor_only(int speed)
     _run_motor_only(speed, sn_motor_right);
 }
 
-static void _turn_90d(int speed, uint8_t sn_motor)
-{
-    int start_angle;
-    get_gyro_value(&start_angle);
-    int current_angle = start_angle;
-
-    _run_motor_only(speed, sn_motor);
-    while (abs(abs(start_angle - current_angle) % 360 - 90) > ANGLE_THRESHOLD)
-    {
-        get_gyro_value(&start_angle);
-        // printf("gyro angle: %d \n", abs(start_angle - current_angle) % 360);
-    }
-    _stop_motor(sn_motor, TACHO_HOLD);
-}
-
 void turn_90d_left(int speed)
 {
-    _turn_90d(speed, sn_motor_right);
+    stop(TACHO_COAST);
+    // sleep ?
+    int angle;
+    get_gyro_value(&angle);
+    turn_to_angle(angle - 90, 5);
 }
 
 void turn_90d_right(int speed)
 {
-    _turn_90d(speed, sn_motor_left);
+    stop(TACHO_COAST);
+    // sleep ?
+    int angle;
+    get_gyro_value(&angle);
+    turn_to_angle(angle + 90, 5);
 }
 
 void release_obstacle()
@@ -194,14 +187,3 @@ void get_right_motor_position(int *position)
 {
     get_tacho_position(sn_motor_right, position);
 }
-// void _test(){
-//     int a; int b;
-//     get_tacho_max_speed(sn_motor_right, &a);
-//     get_tacho_max_speed(sn_motor_left, &b);
-//     printf("%d, %d\n", a, b);
-//     while(true){
-//         get_tacho_speed(sn_motor_right, &a);
-//         get_tacho_speed(sn_motor_left, &b);
-//         printf("%d, %d\n", a, b);
-//     }
-// }

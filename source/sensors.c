@@ -40,6 +40,7 @@ bool check_pressed()
     return (get_sensor_value(0, sn_touch, &val) && (val != 0));
 }
 
+// Deprecated. Use move_keeping_angle
 bool detect_accident(int previous_angle, int current_angle)
 {
     if (abs(previous_angle - current_angle) > ACCIDENT_THRESHOLD)
