@@ -179,24 +179,6 @@ void keep_inline(int angle, int speed)
     }
 }
 
-void move_inline_smooth(int angle, int speed)
-{
-    int current_angle;
-    get_gyro_value(&current_angle);
-    // printf("Angle deviation: %d \n", abs(current_angle - angle));
-    int deviation = abs(current_angle - angle);
-    int reduced_speed = speed * (1 - (float)deviation / 90);
-    // printf("Reduced speed = %d for a %d deviation", reduced_speed, deviation);
-    if (current_angle > angle)
-    {
-        move_separate(reduced_speed, speed);
-    }
-    else
-    {
-        move_separate(speed, reduced_speed);
-    }
-}
-
 bool _is_obstacle(int last_turn_position, int threshold)
 {
     int curr_position;

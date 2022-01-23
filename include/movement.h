@@ -14,7 +14,6 @@
 
 void init_movement();
 void move(int speed);
-void move_separate(int speed_left, int speed_right);
 void enforce_move_angle_smooth(int angle, int speed);
 void stop(uint8_t command);
 void run_right_motor(int speed);
