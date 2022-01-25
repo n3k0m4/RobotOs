@@ -112,6 +112,7 @@ void run_right_motor_only(int speed)
     _run_motor_only(speed, sn_motor_right);
 }
 
+// Deprecated
 void turn_90d_left(int speed)
 {
     stop(TACHO_COAST);
@@ -121,6 +122,7 @@ void turn_90d_left(int speed)
     turn_to_angle(angle - 90, 5);
 }
 
+// Deprecated
 void turn_90d_right(int speed)
 {
     stop(TACHO_COAST);

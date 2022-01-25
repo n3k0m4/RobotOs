@@ -131,18 +131,37 @@ void _keep_inline(int angle, int speed)
 bool _is_obstacle(int last_turn_position, int threshold)
 {
     int curr_position;
-    //int count_per_rot; no need for it as it is always 360 for motors
+    // int count_per_rot; no need for it as it is always 360 for motors
     get_left_motor_position(&curr_position);
     printf("the differnce is  %d", curr_position - last_turn_position);
-    //printf("the difference is %d\n ", (double)(last_turn_position - curr_position) / 2 * PI * 360);
-    if ((curr_position - last_turn_position) / 2 * PI * 360 > threshold)
+    // printf("the difference is %d\n ", (double)(last_turn_position - curr_position) / 2 * PI * 360);
+    if ((curr_position - last_turn_position) / 2 * PI * 360 < threshold)
         return true;
     return false;
 }
 
-void avoid_obstacle(int current_angle, int direction)
+void avoid_obstacle(int angle_to_keep, int direction)
 {
+    turn_to_angle(angle_to_keep + 90, 5);
+    turn_to_angle(angle_to_keep - 90, 5);
 }
+
+bool _is_obstacle_in_turn(int nb_turns, int left_motor_pos)
+{
+    if (nb_turns == 0)
+    {
+        return _is_obstacle(left_motor_pos, FIRST_TURN_THRESHOLD);
+    }
+    else if (MODULO(nb_turns, 2) == 0)
+    {
+        return _is_obstacle(left_motor_pos, LONG_PART_THRESHOLD);
+    }
+    else if (MODULO(nb_turns, 2) == 1)
+    {
+        return _is_obstacle(left_motor_pos, SHORT_PART_THRESHOLD);
+    }
+}
+
 void against_cars()
 {
     const int SPEED = 800; // DO NOT SET TO 0
@@ -151,50 +170,29 @@ void against_cars()
     bool presence_obst = false;
     int sonar_value;
     int current_angle;
-    int left_motor_ps;
-    get_left_motor_position(&left_motor_ps);
+    int left_motor_pos;
+    get_left_motor_position(&left_motor_pos);
     get_gyro_value(&current_angle);
     int angle_to_keep = current_angle;
     while (1)
     {
-        get_sonar_value(&sonar_value);
         move_keeping_angle(angle_to_keep, SPEED);
-        if (nb_turns == 0 && sonar_value < FIRST_TURN_THRESHOLD)
+        get_sonar_value(&sonar_value);
+        if (sonar_value < SONAR_THRESHOLD)
         {
-            if (_is_obstacle(left_motor_ps, FIRST_TURN_THRESHOLD))
+            get_stable_sonar_value(&sonar_value);
+            if (sonar_value >= SONAR_THRESHOLD) continue;
+            if (_is_obstacle_in_turn(nb_turns, left_motor_pos))
             {
-                printf("ESCAPING OBTSACLE");
-                avoid_obstacle(current_angle, -1);
+                avoid_obstacle(angle_to_keep, -1);
             }
-        }
-        else if (MODULO(nb_turns, 2) == 0 && nb_turns != 0 && sonar_value < LONG_PART_THRESHOLD)
-        {
-            if (_is_obstacle(left_motor_ps, LONG_PART_THRESHOLD))
-                avoid_obstacle(current_angle, -1);
-        }
-        else if (MODULO(nb_turns, 2) == 1 && sonar_value < SHORT_PART_THRESHOLD)
-        {
-            if (_is_obstacle(left_motor_ps, SHORT_PART_THRESHOLD))
-                avoid_obstacle(current_angle, -1);
-        }
-        else
-        {
-        }
-
-        if (nb_turns % 2 == 0)
-        {
-            if (sonar_value < SONAR_THRESHOLD)
+            else if (nb_turns % 2 == 0)
             {
-                stop(TACHO_HOLD);
-                get_stable_sonar_value(&sonar_value);
-                if (sonar_value < SONAR_THRESHOLD)
-                {
-                    angle_to_keep -= 90;
-                    turn_to_angle(angle_to_keep, 5);
-                    nb_turns++;
-                }
+                angle_to_keep -= 90;
+                turn_to_angle(angle_to_keep, 5);
+                nb_turns++;
+                get_left_motor_position(&left_motor_pos);
             }
-            get_left_motor_position(&left_motor_ps);
         }
         else
         {
@@ -209,7 +207,7 @@ void against_cars()
             get_gyro_value(&current_angle);
             angle_to_keep = current_angle;
             nb_turns++;
-            get_left_motor_position(&left_motor_ps);
+            get_left_motor_position(&left_motor_pos);
         }
     }
 }
