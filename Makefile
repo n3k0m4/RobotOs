@@ -30,7 +30,7 @@
 CC 			= arm-linux-gnueabi-gcc
 CFLAGS 		= -O2 -g -std=gnu99 -W -Wall -Wno-comment
 INCLUDES 	= -I./ev3dev-c/source/ev3 -I./include/
-LDFLAGS 	= -L./ev3dev-c/lib -lrt -lm -lev3dev-c -lpthread 
+LDFLAGS 	= -L./libraries -lrt -lm -lev3dev-c -lpthread 
 BUILD_DIR 	= ./build
 SOURCE_DIR 	= ./source
 
@@ -38,7 +38,6 @@ OBJS = $(BUILD_DIR)/movement.o \
 		$(BUILD_DIR)/sensors.o \
 		$(BUILD_DIR)/strats.o \
 		$(BUILD_DIR)/main.o
-
 #OBJS = $(BUILD_DIR)/main.o
 all: main
 

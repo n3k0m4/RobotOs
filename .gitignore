@@ -1,5 +1,6 @@
 # Remove ev3libs
 ev3libs-c/*
+libraries/*
 build/*
 
 .vscode
