@@ -1,2 +1,13 @@
-# RobotOs
-This is the repository for OS group project. 
+## Welcome to Team 5 OS's project
+
+Hello !
+
+### Robot build
+
+Insert pictures
+
+### Architecture
+
+Insert the project's Tree.
+
+
