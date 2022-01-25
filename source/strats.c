@@ -133,8 +133,11 @@ bool _is_obstacle(int last_turn_motor_position, int threshold)
     int curr_position;
     // int count_per_rot; no need for it as it is always 360 for motors
     get_left_motor_position(&curr_position);
-    printf("the differnce is  %d", curr_position - last_turn_motor_position);
+    printf("the differnce is  %d\n", curr_position - last_turn_motor_position);
     // printf("the difference is %d\n ", (double)(last_turn_motor_position - curr_position) / 2 * PI * 360);
+    printf("curr pos %d\n", curr_position);
+    printf("last pos%d\n", last_turn_motor_position);
+    printf("float %f\n", (curr_position - last_turn_motor_position) / 2 * PI * 360);
     if ((curr_position - last_turn_motor_position) / 2 * PI * 360 < threshold)
         return true;
     return false;
@@ -175,14 +178,21 @@ void against_cars()
     while (1)
     {
         move_keeping_angle(angle_to_keep, SPEED);
+        // move(SPEED);
         get_sonar_value(&sonar_value);
         if (sonar_value < SONAR_THRESHOLD)
         {
+            printf("Found something. \n");
+            stop(TACHO_COAST);
             get_stable_sonar_value(&sonar_value);
-            if (sonar_value >= SONAR_THRESHOLD)
+            if (sonar_value >= SONAR_THRESHOLD){
+                printf("False alarm. \n");
                 continue;
-            if (_is_obstacle_in_turn(nb_turns, left_motor_pos))
+            }
+            if (_is_obstacle_in_turn(nb_turns, left_motor_pos)){
+                printf("It's an obstacle. \n");
                 avoid_obstacle(angle_to_keep, -1);
+            }
             else if (nb_turns % 2 == 0)
             {
                 angle_to_keep -= 90;
