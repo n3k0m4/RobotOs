@@ -30,7 +30,7 @@
 CC 			= arm-linux-gnueabi-gcc
 CFLAGS 		= -O2 -g -std=gnu99 -W -Wall -Wno-comment
 INCLUDES 	= -I./ev3dev-c/source/ev3 -I./include/
-LDFLAGS 	= -L./libraries -lrt -lm -lev3dev-c -lpthread 
+LDFLAGS 	= -L./ev3dev-c/lib -lrt -lm -lev3dev-c -lpthread 
 BUILD_DIR 	= ./build
 SOURCE_DIR 	= ./source
 
