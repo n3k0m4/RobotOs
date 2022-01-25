@@ -17,14 +17,11 @@ int main(void)
     struct sigaction sa;
     sa.sa_handler = stop_handler;
     sigaction(SIGINT, &sa, NULL);
-    int sonar_value;
-    int starting_motor_position;
+
     printf("*** ( EV3 ) Hello! ***\n");
     init_movement();
     init_sensors();
-    get_sonar_value(&sonar_value);
     printf("*** Initialisation done ***\n");
-    get_left_motor_position(&starting_motor_position);
     //against_time();
     against_cars();
     ev3_uninit();

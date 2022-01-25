@@ -1,18 +1,14 @@
 #include "strats.h"
 #include <stdlib.h>
 
-static void _re_calibrate(int gyro_angle)
-{
-    stop(TACHO_COAST);
-    turn_to_angle(gyro_angle, ANGLE_THRESHOLD);
-}
-
+// Deprecated. Use move_keeping_angle
 bool recover_accident(int previous_angle, int current_angle)
 {
 
     if (detect_accident(previous_angle, current_angle))
     {
-        _re_calibrate(previous_angle);
+        stop(TACHO_COAST);
+        turn_to_angle(previous_angle, ANGLE_THRESHOLD);
         return true;
     }
     return false;
@@ -63,7 +59,7 @@ void against_time()
     while (true)
     {
         get_sonar_value(&sonar_value);
-        enforce_move_angle_smooth(angle_to_keep, SPEED);
+        move_keeping_angle(angle_to_keep, SPEED);
         if (nb_turns % 2 == 0)
         {
             if (sonar_value < SONAR_THRESHOLD)
@@ -113,55 +109,8 @@ void always_left_touch()
     }
 }
 
-int avoid_obstacle(int start_angle, int choose_dir)
-{
-    int sonar_value, l_sonar_v, r_sonar_v;
-    int speed = 500;
-    int sonar_threshold = 15 * 10;
-    bool dir_is_left = false;
-    move(speed);
-    while (true)
-    {
-        get_sonar_value(&sonar_value);
-        // found obstacle
-        if (sonar_value < sonar_threshold)
-        {
-            printf("Found something %d \n", choose_dir);
-            if (choose_dir == 1)
-            {
-                printf("Has to turn right \n");
-                turn_to_angle(start_angle, 10);
-                sleep(1);
-                return -2;
-            }
-            else if (choose_dir == -1)
-            {
-                printf("Has to turn left \n");
-                turn_to_angle(start_angle, 10);
-                sleep(1);
-                return -2;
-            }
-            // choose dir
-            turn_to_angle(start_angle - 90, 10);
-            sleep(1);
-            get_sonar_value(&l_sonar_v);
-            turn_to_angle(start_angle + 90, 10);
-            sleep(1);
-            get_sonar_value(&r_sonar_v);
-            if (l_sonar_v > r_sonar_v)
-            {
-                printf("left better \n");
-                turn_to_angle(start_angle - 90, 10);
-                dir_is_left = true;
-                return 1;
-            }
-            printf("right better \n");
-            return -1;
-        }
-    }
-}
-
-void keep_inline(int angle, int speed)
+// Deprecated. Use move_keeping_angle
+void _keep_inline(int angle, int speed)
 {
     int current_angle;
     get_gyro_value(&current_angle);
@@ -191,6 +140,9 @@ bool _is_obstacle(int last_turn_position, int threshold)
     return false;
 }
 
+void avoid_obstacle(int current_angle, int direction)
+{
+}
 void against_cars()
 {
     const int SPEED = 800; // DO NOT SET TO 0
