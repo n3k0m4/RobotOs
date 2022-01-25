@@ -131,16 +131,9 @@ void _keep_inline(int angle, int speed)
 bool _is_obstacle(int last_turn_motor_position, int threshold)
 {
     int curr_position;
-    // int count_per_rot; no need for it as it is always 360 for motors
+    const double WHEEL_RADIUS = 5.6 / 2;
     get_left_motor_position(&curr_position);
-    printf("the differnce is  %d\n", curr_position - last_turn_motor_position);
-    // printf("the difference is %d\n ", (double)(last_turn_motor_position - curr_position) / 2 * PI * 360);
-    printf("curr pos %d\n", curr_position);
-    printf("last pos%d\n", last_turn_motor_position);
-    printf("float %f\n", (curr_position - last_turn_motor_position) / 2 * PI * 360);
-    if ((curr_position - last_turn_motor_position) / 2 * PI * 360 < threshold)
-        return true;
-    return false;
+    return (curr_position - last_turn_motor_position) * 2 * PI * WHEEL_RADIUS / 360 < threshold;
 }
 
 void avoid_obstacle(int angle_to_keep, int direction)
