@@ -128,15 +128,18 @@ void turn_90d_right(int speed)
     turn_to_angle(angle + 90, 5);
 }
 
+void _run_motor_timed(uint8_t sn_motor, int speed, int milliseconds){
+    // No need to use TACHO_RUN_TIMED because we sleep after anyway
+    _run_motor_forever(sn_obstacle, -speed);
+    SLEEP(milliseconds);
+    _stop_motor(sn_motor, TACHO_COAST);
+}
+
 void release_obstacle()
 {
-    _run_motor_forever(sn_obstacle, 450);
-    sleep(1);
-    _stop_motor(sn_obstacle, TACHO_COAST);
-    _run_motor_forever(sn_obstacle, -450);
-    sleep(1);
-    _stop_motor(sn_obstacle, TACHO_COAST);
-    printf("*** Obstacle released ***\n");
+    const int SPEED = 450;
+    _run_motor_timed(sn_obstacle, -800, 500);
+    _run_motor_timed(sn_obstacle, 400, 500);
 }
 
 void turn_to_angle(int destination_angle, int thres)
