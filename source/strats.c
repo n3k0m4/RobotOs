@@ -158,7 +158,7 @@ void against_cars()
     while (1)
     {
         get_sonar_value(&sonar_value);
-        enforce_move_angle_smooth(angle_to_keep, SPEED);
+        move_keeping_angle(angle_to_keep, SPEED);
         if (nb_turns == 0 && sonar_value < FIRST_TURN_THRESHOLD)
         {
             if (_is_obstacle(left_motor_ps, FIRST_TURN_THRESHOLD))
