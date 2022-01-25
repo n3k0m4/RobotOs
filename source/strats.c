@@ -140,22 +140,76 @@ bool _is_obstacle(int last_turn_position, int threshold)
     return false;
 }
 
-void _avoid_obstacle(){
+void avoid_obstacle(int current_angle, int direction)
+{
+}
+void against_cars()
+{
+    const int SPEED = 800; // DO NOT SET TO 0
+    const int SONAR_THRESHOLD = 20 * 10;
+    int nb_turns = 0;
+    bool presence_obst = false;
     int sonar_value;
-    int starting_motor_position;
-    get_sonar_value(&sonar_value);
-    get_left_motor_position(&starting_motor_position);
-
+    int current_angle;
+    int left_motor_ps;
+    get_left_motor_position(&left_motor_ps);
+    get_gyro_value(&current_angle);
+    int angle_to_keep = current_angle;
     while (1)
     {
-        move(500);
-
         get_sonar_value(&sonar_value);
-        printf("%d\n", sonar_value);
-        if (sonar_value < 300 && _is_obstacle(starting_motor_position, 10))
+        enforce_move_angle_smooth(angle_to_keep, SPEED);
+        if (nb_turns == 0 && sonar_value < FIRST_TURN_THRESHOLD)
         {
-            stop(TACHO_COAST);
-            break;
+            if (_is_obstacle(left_motor_ps, FIRST_TURN_THRESHOLD))
+            {
+                printf("ESCAPING OBTSACLE");
+                avoid_obstacle(current_angle, -1);
+            }
+        }
+        else if (MODULO(nb_turns, 2) == 0 && nb_turns != 0 && sonar_value < LONG_PART_THRESHOLD)
+        {
+            if (_is_obstacle(left_motor_ps, LONG_PART_THRESHOLD))
+                avoid_obstacle(current_angle, -1);
+        }
+        else if (MODULO(nb_turns, 2) == 1 && sonar_value < SHORT_PART_THRESHOLD)
+        {
+            if (_is_obstacle(left_motor_ps, SHORT_PART_THRESHOLD))
+                avoid_obstacle(current_angle, -1);
+        }
+        else
+        {
+        }
+
+        if (nb_turns % 2 == 0)
+        {
+            if (sonar_value < SONAR_THRESHOLD)
+            {
+                stop(TACHO_HOLD);
+                get_stable_sonar_value(&sonar_value);
+                if (sonar_value < SONAR_THRESHOLD)
+                {
+                    angle_to_keep -= 90;
+                    turn_to_angle(angle_to_keep, 5);
+                    nb_turns++;
+                }
+            }
+            get_left_motor_position(&left_motor_ps);
+        }
+        else
+        {
+            // TODO: Have get_stable_sonar_value logic here too
+            if (!check_pressed())
+                continue;
+            SLEEP(200);
+            recover();
+            SLEEP(200);
+
+            calibrate_gyro();
+            get_gyro_value(&current_angle);
+            angle_to_keep = current_angle;
+            nb_turns++;
+            get_left_motor_position(&left_motor_ps);
         }
     }
 }
