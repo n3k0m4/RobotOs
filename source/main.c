@@ -26,20 +26,7 @@ int main(void)
     printf("*** Initialisation done ***\n");
     get_left_motor_position(&starting_motor_position);
     //against_time();
-    while (1)
-    {
-        move(500);
-
-        get_sonar_value(&sonar_value);
-        printf("%d\n", sonar_value);
-        if (sonar_value < 300 && _is_obstacle(starting_motor_position, 10))
-        {
-
-            stop(TACHO_COAST);
-            break;
-        }
-    }
-
+    against_cars();
     ev3_uninit();
     printf("*** ( EV3 ) Bye! ***\n");
 

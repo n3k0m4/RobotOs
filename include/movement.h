@@ -11,6 +11,9 @@
 #define PORT_RIGHT OUTPUT_C
 #define PORT_OBSTACLE OUTPUT_A
 #define ANGLE_THRESHOLD 10
+#define FIRST_TURN_THRESHOLD 300
+#define LONG_PART_THRESHOLD 800
+#define SHORT_PART_THRESHOLD 600
 
 void init_movement();
 void move(int speed);
