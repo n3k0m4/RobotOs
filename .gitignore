@@ -2,6 +2,8 @@
 ev3libs-c/*
 libraries/libev3dev-c.a
 
+# notebooks
+*.ipynb
 # Prerequisites
 *.d
 
