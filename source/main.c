@@ -23,8 +23,7 @@ int main(void)
     init_sensors();
     printf("*** Initialisation done ***\n");
     //against_time();
-    
-
+    against_cars();
     ev3_uninit();
     printf("*** ( EV3 ) Bye! ***\n");
 
