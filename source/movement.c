@@ -56,17 +56,14 @@ void move(int speed)
     _run_motor_forever(sn_motor_left, speed);
 }
 
-void move_keeping_angle(int angle, int speed)
+void move_keeping_angle(int angle_to_keep, int speed)
 {
     int current_angle;
     get_gyro_value(&current_angle);
-    // printf("Angle deviation: %d \n", abs(current_angle - angle));
-    int deviation = abs(current_angle - angle);
-    //printf("deviation = %d, current_angle = %d, angle_to_keep = %d\n", deviation,current_angle,angle);
-    int reduced_speed = speed * (1 - (float)deviation / 90);
+    int deviation = abs(current_angle - angle_to_keep) % 180;
+    int reduced_speed = speed * (1 - (float)deviation / 180);
     reduced_speed = _validate_speed(reduced_speed);
-    // printf("Reduced speed = %d for a %d deviation", reduced_speed, deviation);
-    if (current_angle > angle)
+    if (current_angle > angle_to_keep)
     {
         _run_motor_forever(sn_motor_right, speed);
         _run_motor_forever(sn_motor_left, reduced_speed);
