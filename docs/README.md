@@ -28,8 +28,6 @@ The motor section in the ev3 documentation was very detailed, which made writing
 
 To do so, we first put the robot (fully charged) on the track and let it move freely with speed set at maximum speed but keep the logic of the turns and calibration, and gather the speeds from both motors during the whole trials.
  
-![img](includes/plot1.png)
-
 <p align="center">
   <img src="includes/plot1.png" />
 </p>
@@ -39,14 +37,18 @@ In the first figure we can see that in the grand scheme of the course, the right
 
 To be able to notice this difference, we can limit the plot interval (zoom into a small section).
 
-![img](includes/plot3.png)
+<p align="center">
+  <img src="includes/plot3.png" />
+</p>
 
  
 It is, as we noticed in the test, the right motor runs a bit faster than the left one, and the accumulation of the small deviations result in a big difference in the robot movement and behaviour.
  
 To solve this issue, we need to find a coefficient that overall calibrates the difference between the two tacho motors. We also use the data from before to plot the graph of the factor `left_motor_speed/right_motor_speed`, to get a sense of the difference between the two motors.
 
-![img](includes/plot2.png)
+<p align="center">
+  <img src="includes/plot2.png" />
+</p>
  
 A factor of `value` seems to be constant thought out the movement sections of the robot, we are also aware that these values would be different on other settings of the robot (less speed or more speed, and less charged battery).
  
