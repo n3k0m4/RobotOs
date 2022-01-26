@@ -9,6 +9,7 @@ The Eurecom Kart project consists of building a robot using the EV3 Brick, to pl
 ## Robot build
  
 Our initial decision was to try and make the robot in the most minimalist and compact build possible. Even though some fancy and complex builds, with arms and sophisticated add-ons (lego wheels to the sides to limit the crashes with the walls) are tempting, and could probably be useful to keep the robot from flipping, they create a non-uniform mass distribution and make it very hard to keep a steady, high precision, and fast movement. So this choice was taken to have the minimal components mounted (i.e. optimal mass distribution), which hopefully save us from a lot of troubles.
+
 ![img](link_here)
  
 Our build consists of 3 tacho motors, two mounted directly as a base in the lower part, to animate the wheels, and a third to animate the lever and throw obstacles. A sonar was also on the lower part of the robot (mainly for distance measures), and a touch sensor mounted on the front part, to be used to detect when the robot crashes directly into the wall to calibrate and then continue. We also base a big part of our strategy around a gyroscope. The gyroscope is mounted in the back of the robot and will be used to calibrate the movement of the robot, detect if an accident happened, and mainly provide high precision turns.
@@ -48,7 +49,7 @@ The use of the gyroscope is limited to the detection of the angles. We also base
  
 Inside the sensor section in the ev3 block there is a mode for the gyroscope called `GYRO_CAL_MODE`, this mode is used to stabilize the values of the sensor once switched on. To calibrate the gyroscope, we could switch this mode on before every test, or implement a method that switches between modes when required.
  
-We have decided to implement in our `sensors.c` a utility function `calibrate_gyro` that switches to calibrate mode, sleep for a few seconds to let the calibration take action and then switches back to the angular mode `GYRO_ANG_MODE`. See [code](####Calibrating-gyroscope)
+We have decided to implement in our `sensors.c` a utility function `calibrate_gyro` that switches to calibrate mode, sleep for a few seconds to let the calibration take action and then switches back to the angular mode `GYRO_ANG_MODE`. See [code](####Calibrating%20gyroscope)
  
 ### Sonar
  
@@ -56,7 +57,7 @@ The sonar implementation was not a difficult part, as our goal was to keep looki
  
 **Calibration:**
  
-One big issue we faced with the sonar values was that the buffers we get for the sensor getting moving values (big oscillation in the values) and not being able to update correctly. To remediate this issue, we implemented `get_stable_sonar_value` in `sensors.c`, that when detecting many noise in the values, it stops and loops until it's able to get two consecutive values with a maximum threshold of 2 cm difference. See [code](####Calibrating-Sonar)
+One big issue we faced with the sonar values was that the buffers we get for the sensor getting moving values (big oscillation in the values) and not being able to update correctly. To remediate this issue, we implemented `get_stable_sonar_value` in `sensors.c`, that when detecting many noise in the values, it stops and loops until it's able to get two consecutive values with a maximum threshold of 2 cm difference. See [code](####Calibrating%20Sonar)
 
 ### Touch sensor
 
@@ -64,7 +65,11 @@ The touch sensor is the only sensor that is analog and provides correct values. 
 
 ## Implementation
 
+The implementation of all the robot's logic is wrapped around the ev3dev library. We have decided not to complicate our code for the readers and write the necessary wrappers around the native method of `ev3dev-c`. This wrapper methods and the modular architecture (next section) make it easy for anyone to follow the code and understand the use of each method.
+
 ### Architecture and tree
+
+Our project's tree looks like the following:
 
 
 ### Calibration methods
@@ -102,3 +107,4 @@ void calibrate_gyro(){
 ```
 ## Strategies
 
+## Test
