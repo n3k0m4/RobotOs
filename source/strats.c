@@ -137,7 +137,7 @@ bool _is_obstacle(int last_turn_motor_position, int threshold)
     return (curr_position - last_turn_motor_position) * 2 * PI * WHEEL_RADIUS / 360 < threshold;
 }
 
-void avoid_obstacle(int angle_to_keep, int sonar_threshold, int speed)
+void _avoid_obstacle(int angle_to_keep, int sonar_threshold, int speed)
 {
     const int TIME_THRESHOLD = 1; // TODO: Rename ?
     int left_sonar_value, right_sonar_value, sonar_value;
@@ -178,7 +178,7 @@ void avoid_obstacle(int angle_to_keep, int sonar_threshold, int speed)
                 {
                     // Couldn't find a way to avoid obstacle on this direction
                     // Check on the other direction
-                    avoid_obstacle(angle_to_keep, sonar_threshold, speed);
+                    _avoid_obstacle(angle_to_keep, sonar_threshold, speed);
                     return;
                 }
             }
@@ -230,7 +230,7 @@ void against_cars()
             if (_is_obstacle_in_turn(nb_turns, left_motor_pos))
             {
                 printf("It's an obstacle. \n");
-                avoid_obstacle(angle_to_keep, 10 * 10, 400);
+                _avoid_obstacle(angle_to_keep, 10 * 10, 400);
             }
             else if (nb_turns % 2 == 0)
             {
