@@ -117,7 +117,7 @@ Inside `ev3dev-c` we have our submodule that we build our project with. The proj
     └── strats.c
 
 ```
-For mode details on how to compile the code look [here](https://github.com/n3k0m4/RobotOs/tree/main#welcome-to-team-5-oss-project).
+For mode details on how to compile the code look [here](https://github.com/n4k0m4/RobotOs/tree/main#welcome-to-team-5-oss-project).
 
 ### Movement and Sensors
 
@@ -242,13 +242,70 @@ void calibrate_gyro(){
 ```
 ## Strategies
 
+This year's project was divided into two main parts. A first one, in the form of a course against time, where we put the robot in the track and it should be able to do 5 turns while avoiding obstacles. The second part was in the form of a course against other robots, where throwing obstacles is allowed.
+
+### Against time
+
+The particularity of this test is not how fast can the robot run, but it is in the capability of the robot to calibrate itself during the course. In our first tests, without anyone calibration, the robot wasn't able to move past the mark at the half section (half tour). This bahavior was mainly due to the accumulation of small errors from both the sonar and the gyroscope.
+
+To correct these issues we decided to enforce a calibration mechanism based on the number of turns the robot made. The idea behind this method is to give the robot the freedom to move in even number of turns and only decide to turn when the sonar value is less than a threshold, but in the odd turns we let the robot go directly into the wall to calibrate, and obviously when the robot is at 90 degrees from the wall the touch sensor is pushed, which signals the robot to move backwards and turn to the left to continue to the course. 
+
+After implementing this method we were able to go from a 25% success rate to over 90% (in making 5 turns). This was mainly due to the small hard limit on the deviation the robot could accumulate over the race, because after 2 turns we are sure to start the movement parralel to the wall.
+
+It is also worth mentioning that the way we escape the fixed obstacles in the track is by calculating the right distance to fall back when we are calibrating with the wall.
+
+```C
+void against_time()
+{
+    const int SPEED = 800; // DO NOT SET TO 0
+    const int SONAR_THRESHOLD = 20 * 10;
+    int nb_turns = 0;
+    int sonar_value;
+    int current_angle; // TODO: Remove useless var
+    get_gyro_value(&current_angle);
+    int angle_to_keep = current_angle;
+    while (true)
+    {
+        get_sonar_value(&sonar_value);
+        move_keeping_angle(angle_to_keep, SPEED);
+        if (nb_turns % 2 == 0)
+        {
+            if (sonar_value < SONAR_THRESHOLD)
+            {
+                stop(TACHO_HOLD);
+                get_stable_sonar_value(&sonar_value);
+                if (sonar_value < SONAR_THRESHOLD)
+                {
+                    angle_to_keep -= 90;
+                    turn_to_angle(angle_to_keep, 5);
+                    nb_turns++;
+                }
+            }
+        }
+        else
+        {
+            // TODO: Have get_stable_sonar_value logic here too
+            if (!check_pressed())
+                continue;
+            SLEEP(200);
+            recover();
+            SLEEP(200);
+
+            calibrate_gyro();
+            get_gyro_value(&current_angle);
+            angle_to_keep = current_angle;
+            nb_turns++;
+        }
+    }
+}
+```
+
+The calibration methods `get_stable_sonar_value`, `calibrate_gyro`, and `move_keeping_angle` help enforcing the calibration by getting more accurate and stable values from the sensors and also by keeping the robot in a straight line.
+
+### Against cars
+
+
+
 ## Test
 
 
-
-## Dump
-(i.e. No correction if angle difference is 0, and setting one motor speed to 0 if angle is 90°)
-
-To calibrate the gyroscope, we could switch this mode on before every test, or implement a method that switches between modes when required.
-
-We have decided to implement in our `sensors.c` a utility function `calibrate_gyro` that switches to calibrate mode, sleep for a few seconds to let the calibration take action and then switches back to the angular mode `GYRO_ANG_MODE`. See [code](https://github.com/n3k0m4/RobotOs/tree/website#calibrating-gyroscope)
