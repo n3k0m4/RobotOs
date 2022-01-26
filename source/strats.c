@@ -188,6 +188,9 @@ void _avoid_obstacle(int angle_to_keep, int sonar_threshold, int speed)
 
 bool _is_obstacle_in_turn(int nb_turns, int last_turn_motor_position)
 {
+    const int FIRST_TURN_THRESHOLD = 300;
+    const int LONG_PART_THRESHOLD = 800;
+    const int SHORT_PART_THRESHOLD = 600;
     if (nb_turns == 0)
     {
         return _is_obstacle(last_turn_motor_position, FIRST_TURN_THRESHOLD);
