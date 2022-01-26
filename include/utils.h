@@ -6,7 +6,7 @@
 
 #define SLEEP(msec) usleep((msec)*1000)
 
-#define MODULO(A, B) ((A % B) + B) % B
+#define MODULO(A, B) (((A) % (B)) + (B)) % (B)
 
 #define PI 3.142857
 #endif

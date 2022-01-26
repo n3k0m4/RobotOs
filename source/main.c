@@ -24,7 +24,6 @@ int main(void)
     printf("*** Initialisation done ***\n");
     //against_time();
     against_cars();
-    ev3_uninit();
     printf("*** ( EV3 ) Bye! ***\n");
 
     return (0);

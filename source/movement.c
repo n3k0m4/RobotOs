@@ -33,7 +33,7 @@ static int _validate_speed(int speed)
         speed = max_speed;
     if (abs(speed) > max_speed)
     {
-        printf("Speed %d cannot be bigger than max_speed %d", speed, max_speed);
+        printf("Speed %d cannot be bigger than max_speed %d\n", speed, max_speed);
         return 0;
     }
     return speed;
@@ -60,10 +60,10 @@ void move_keeping_angle(int angle_to_keep, int speed)
 {
     int current_angle;
     get_gyro_value(&current_angle);
-    int deviation = abs(current_angle - angle_to_keep) % 180;
-    int reduced_speed = speed * (1 - (float)deviation / 180);
-    reduced_speed = _validate_speed(reduced_speed);
-    if (current_angle > angle_to_keep)
+    int deviation = MODULO(current_angle - angle_to_keep, 360);
+    double factor = (double)abs(180 - deviation) / 180;
+    int reduced_speed = _validate_speed(speed * factor);
+    if (deviation < 180)
     {
         _run_motor_forever(sn_motor_right, speed);
         _run_motor_forever(sn_motor_left, reduced_speed);
