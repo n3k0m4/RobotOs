@@ -1,4 +1,5 @@
 
+
 # Welcome to Team 5 OS's project
  
 Hello! This repository was made by TEAM 5 in the OS course at EURECOM 2022, and was composed by [@n3k0m4](https://github.com/n3k0m4), [@faroukfaiz10](https://github.com/faroukfaiz10), [@smlmz](https://github.com/smlmz), and was supervised by Mr ludovic Apvrille [@ludovicapvrille](https://github.com/ludovicapvrille).
@@ -22,7 +23,7 @@ Our build consists of 3 tacho motors, two mounted directly as a base in the lowe
  
 The build is divided into 4 components, apart from the ev3 brick.
  
-### Motors and calibration
+### Motors
  
 The motor section in the ev3 documentation was very detailed, which made writing the section code about the movement an easy and straight forward task. Our architecture used two main tacho motors to move the robot around. In an ideal setting, the motors will be calibrated, and the speed would match between the two motors. Unfortunately, this was not the case with the package we got, so we spent an important part of our project on calibrating the movement.
  
@@ -64,7 +65,7 @@ To sum it up: To fix the motor's speed difference, two solutions were combined:
 
 Finally, the third motor doesn't need any calibration, as its role is to only move down to throw the obstacle and up to avoid obstructing the touch sensor.
  
-### Gyroscope and calibration
+### Gyroscope
  
 The use of the gyroscope is limited to the detection of the angles. We also based the movement correction (keep a straight line movement) with the use of the original angle to keep in case of any accident with other robots.
 
@@ -79,7 +80,7 @@ There are 2 main issues when it comes to the gyroscope: Drift and lag.
  
 
  
-### Sonar and calibration
+### Sonar
  
 The sonar implementation was not a difficult part, as our goal was to keep looking in a direct line (No shapes detection) and measure the distance to the next obstacle (walls included).
  
@@ -129,45 +130,18 @@ Inside `ev3dev-c` we have our submodule that we build our project with. The proj
 ```
 For mode details on how to compile the code look [here](https://github.com/n4k0m4/RobotOs/tree/main#welcome-to-team-5-oss-project).
 
+The dependency graph for our modules is the following: `main.c` being our program's entry point. 
+<p align="center">
+  <img src="includes/dep.png" />
+</p>
+
 ### Movement and Sensors
 
 In this section we go a bit in the details of the methods and the logic implemented in the `sensors` and `movement`.
 
 #### Movement
- 
-The interface to movement looks like the following
-```C
-#ifndef MOVEMENT_H
-#define MOVEMENT_H
 
-#include <stdio.h>
-#include <unistd.h>
-#include "ev3.h"
-#include "ev3_port.h"
-#include "ev3_tacho.h"
-
-#define PORT_LEFT OUTPUT_B
-#define PORT_RIGHT OUTPUT_C
-#define PORT_OBSTACLE OUTPUT_A
-#define ANGLE_THRESHOLD 10 // Gyroscope angle threshold
-#define FIRST_TURN_THRESHOLD 300 // Starting section threshold
-#define LONG_PART_THRESHOLD 800 // Long hall section threshold
-#define SHORT_PART_THRESHOLD 600 // Small hall section threshold
-
-void init_movement(); // Init tacho motors & set sn_left, sn_right
-void move(int speed); // Move with both motors using speed (not calibrated)
-void move_keeping_angle(int angle, int speed); // Move with calibration using a fix angle at start 
-void stop(uint8_t command); // Stop motors
-void run_right_motor_only(int speed); // Turn right motor only
-void run_left_motor_only(int speed); // Turn left motor only
-void turn_to_angle(int destination_angle, int thres); // Turn the robot to an angle, this method uses calibration to get the correct angle.
-void get_left_motor_position(int *position); // Gets the position of the left motor in Tacho counts
-void get_right_motor_position(int *position); // Gets the position of the left motor in Tacho counts
-
-#endif
-```
-
-This file exports the declared methods to other files that includes it (mainly `strats.h`). In this file, we define first the `PORTS` global constants to show which motor is linked to which output in the ev3 brick (useful is case we want to swipe cables), we also define the `THRESHOLD` global constants useful for the robot login anc behavior.
+This module exports the declared methods to other files that includes it (mainly `strats.h`). In this module, we define first the `PORTS` global constants to show which motor is linked to which output in the ev3 brick (useful is case we want to swipe cables), we also define the `THRESHOLD` global constants useful for the robot login anc behavior.
 
 The methods in the `movement.c` are mainly wrappers around ev3dev kit, so we won't show any details on them in this section, you can find the code [here](https://github.com/n3k0m4/RobotOs). 
 
@@ -177,20 +151,22 @@ The two interesting methods are `move_keeping_angle` and `turn_to_angle`, as the
 void move_keeping_angle(int angle, int speed)
 {
     int current_angle;
-    get_gyro_value(&current_angle);
-    int deviation = abs(current_angle - angle);
-    int reduced_speed = speed * (1 - (float)deviation / 90);
-    reduced_speed = _validate_speed(reduced_speed);
-    if (current_angle > angle)
-    {
-        _run_motor_forever(sn_motor_right, speed);
-        _run_motor_forever(sn_motor_left, reduced_speed);
-    }
-    else
-    {
-        _run_motor_forever(sn_motor_right, reduced_speed);
-        _run_motor_forever(sn_motor_left, speed);
-    }
+	get_gyro_value(&current_angle);
+	int deviation = MODULO(current_angle - angle_to_keep, 360);
+	double factor = (double)abs(180 - deviation) / 180;
+	int reduced_speed = _validate_speed(speed * factor);
+	if (deviation < 180)
+	{
+		// Deviate left
+		_run_motor_forever(sn_motor_right, speed);
+		_run_motor_forever(sn_motor_left, reduced_speed);
+	}
+	else
+	{
+		// Deviate right
+		_run_motor_forever(sn_motor_right, reduced_speed);
+		_run_motor_forever(sn_motor_left, speed);
+	}
 }
 
 void turn_to_angle(int destination_angle, int thres)
@@ -202,12 +178,15 @@ void turn_to_angle(int destination_angle, int thres)
     uint8_t sn_motor = angle_to_turn >= 0 ? sn_motor_left : sn_motor_right;
     uint8_t sn_other_motor = sn_motor == sn_motor_right ? sn_motor_left : sn_motor_right;
     int speed = max_speed;
+    // Run motors at inverse speeds for the robot to turn around itself
     _run_motor_forever(sn_motor, speed);
     _run_motor_forever(sn_other_motor, -speed);
     while (abs(angle_to_turn) > thres)
     {
         get_gyro_value(&current_angle);
         angle_to_turn = (destination_angle - current_angle) % 360;
+        // Decrease speed as the angle gets closer to destination to 
+        // improve accuracy and limit lag effect.
         speed = (int)(max_speed * ((float)abs(angle_to_turn) / 180));
         _run_motor_forever(sn_motor, speed);
         _run_motor_forever(sn_other_motor, -speed);
@@ -227,10 +206,10 @@ int get_stable_sonar_value(int *value_buf){
     const int ERROR_THRESHOLD = 20; // 2cm
     int sonar_value;
     int nb_constant_measures = 0;
-    while (nb_constant_measures < 2){
+    // Stop when we have 2 consecutive close values.
+    while (nb_constant_measures < 2){ 
         SLEEP(500);
         get_sonar_value(&sonar_value);
-        printf("Getting stable sonar value ...\n");
         if (abs(previous_sonar_value - sonar_value) < ERROR_THRESHOLD) nb_constant_measures++;
         else nb_constant_measures = 0;
         previous_sonar_value = sonar_value;
@@ -243,7 +222,6 @@ int get_stable_sonar_value(int *value_buf){
 #### Calibrating gyroscope
 ``` C
 void calibrate_gyro(){
-    printf("Calibrating gyro ...\n");
     set_sensor_mode(sn_gyro, GYRO_CAL_MODE);
     SLEEP(1000);
     set_sensor_mode(sn_gyro, GYRO_ANG_MODE);
@@ -314,7 +292,15 @@ The calibration methods `get_stable_sonar_value`, `calibrate_gyro`, and `move_ke
 
 ### Against cars
 
+TL;DR: `against_cars = against_time + obstacle avoiding logic`
+  
 
+Although simplistic, the expression above sums up nicely the logic of the `against_cars` startegy. Indeed, the `against_time` strategy has all the logic needed to do the laps, calibration ...etc. It'd be a shame to waste it. Especially since the only difference is that we might have more obstacles down the road than the built-in ones. So we decided to add a function to avoid obstacles by going around them.
+
+
+This begs the question: How to differentiate between an obstacle and a wall. For that we have implemented `_is_obstacle_in_turn` that decides, depending on the current turn number (i.e the number of times we got to a wall and turned => 4 turns in a lap) and the distance we did since the last turn. If the obstacle we find is not expected so soon (i.e. before the motor have turned "enough" since last turn), we assume it's not a wall and try to bypass it.
+
+To bypass the obstacle, we basically look left and right, we chose the direction with the most space and we look for bypassing the obstacle from that side. On top of that are a number of checks to not stumble against a new obstacle and to make sure the robot avoids the obstacle by a sufficient distance.
 
 ## Steps and Tests
 
@@ -341,5 +327,9 @@ As results of all these tweeks our robot is much more reliable and can run the 5
 
 ### Phase 3 (Always Be Escaping):
 
-At this step our robot was reliable in its movements and able to detect relatively correct values with its sensors, so we started the phase of trying to compete against other robots and try to escape them and their obstacles. 
+At this step our robot was reliable in its movements and able to detect relatively correct values with its sensors, so we started the phase of trying to compete against other robots and try to escape them and their obstacles.
+
+This has been by far the hardest part seeing how broad it is. We settled on defining an obstacle as anything in front of the robot that is not a wall. This can include other robots, the obstacles they throw, the obstacles we throw or even the obstacles built into the stadium. It's important to notice that the robot does not distinguish between the obstacles and treat them all equally by trying to get around them.
+
+This was the last piece of the puzzle for our robot. Equipped with this logic, it's now ready to go toe to toe against other robots !
 
