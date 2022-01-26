@@ -1,14 +1,15 @@
+
 # Welcome to Team 5 OS's project
  
 Hello! This repository was made by TEAM 5 in the OS course at EURECOM 2022, and was composed by [@n3k0m4](https://github.com/n3k0m4), [@faroukfaiz10](https://github.com/faroukfaiz10), [@smlmz](https://github.com/smlmz), and was supervised by Mr ludovic Apvrille [@ludovicapvrille](https://github.com/ludovicapvrille).
  
 ## Introduction
  
-The Eurecom Kart project consists of building a robot using the EV3 Brick, to play a game where it has win a race against other teams' robots while throwing and escaping obstacles. The programming side of this project was done thanks to low level techniques acquired during the OS lectures.
+The Eurecom Kart project consists of building a robot using the EV3 Brick, to play a game where it has to win a race against other teams' robots while throwing and escaping obstacles. The programming side of this project was done thanks to low level techniques acquired during the OS lectures.
  
 ## Robot build
  
-Our initial decision was to try and make the robot in the most minimalist and compact build possible. Even though some fancy and complex builds, with arms and sophisticated add-ons (lego wheels to the sides to limit the crashes with the walls) are tempting, and could probably be useful to keep the robot from flipping, they create a non-uniform mass distribution and make it very hard to keep a steady, high precision, and fast movement. So this choice was taken to have the minimal components mounted (i.e. optimal mass distribution), which hopefully save us from a lot of troubles.
+Our initial decision was to try and make the robot in the most minimalist and compact build possible. Even though some fancy and complex builds, with arms and sophisticated add-ons (Lego wheels to the sides to limit the crashes with the walls) are tempting, and could probably be useful to keep the robot from flipping, they create a non-uniform mass distribution and make it very hard to keep a steady, high precision, and fast movement. So this choice was taken to have the minimal components mounted (i.e. optimal mass distribution), which hopefully save us from a lot of troubles.
 
 ![img](link_here)
  
@@ -25,31 +26,50 @@ The motor section in the ev3 documentation was very detailed, which made writing
  
 **Calibration:**
  
-To do so, we first put the robot (fully charged) on the track and let it move freely with speed set at 800 but keep the logic of the turns and calibration, and gather the speeds from both motors during the whole trials.
+To do so, we first put the robot (fully charged) on the track and let it move freely with speed set at maximum speed but keep the logic of the turns and calibration, and gather the speeds from both motors during the whole trials.
  
 ![img](link_here)
  
-In the first figure we can see that in the grand scheme of the course, the left motor plot is almost always on top of the right motor one besides a small part when they are in sync. To be able to notice this difference, we can limit the plot interval (zoom into a small section).
+In the first figure we can see that in the grand scheme of the course, the right motor plot is almost always on top of the left motor one besides a small part when they are in sync. 
  
 ![img](link_here)
+
+To be able to notice this difference, we can limit the plot interval (zoom into a small section).
+
+![img](link_here)
  
-The second figure shows the difference between the two motors better. It is, as we noticed in the test, the left motor runs a bit faster than the right one, and the accumulation of the small deviations result in a big difference in the robot movement and behavior.
+It is, as we noticed in the test, the right motor runs a bit faster than the left one, and the accumulation of the small deviations result in a big difference in the robot movement and behaviour.
  
-To solve this issue, we need to find a coefficient that overall calibrates the difference between the two tacho motors. We also use the data from before to plot the graph of the factor `left_motor_speed[i]/right_motor_speed[i]`, to get a sense of the difference between the two motors.
+To solve this issue, we need to find a coefficient that overall calibrates the difference between the two tacho motors. We also use the data from before to plot the graph of the factor `left_motor_speed/right_motor_speed`, to get a sense of the difference between the two motors.
+
+![img](link_here)
  
-A factor of `value` seems to be constant thought out the movement sections of the robot, we are also aware that these values would be different on other settings of the robot (less speed or more speed, and less charged battery), but as we intend to do the course with a constant speed (800) we decided to calibrate the motors with that value.
+A factor of `value` seems to be constant thought out the movement sections of the robot, we are also aware that these values would be different on other settings of the robot (less speed or more speed, and less charged battery).
  
-Finally, the third motor doesn't need any calibration, as its role is to only move down to throw the obstacle and up to uncover the touch sensor.
+The differences between the wheels above is maximal because we're using maximum speed. What explains the relatively big factor around 3%-5% is that the right motor can reach higher speeds than the left one. Asking both motors to run at their max speed maximizes the difference between the two. Noticing this gives us the first solution to our problem: Running at a lower speed than the max speed. We noticed that both motors can easily reach a speed of 800 if fully charged. We decided to go for that value for the rest of the tests.
+
+Unfortunately, that was not enough to fix the speed difference between the motors, as there were errors that were accumulating after running them for a relatively longer period of time (>60s). We decided to correct those differences programmatically by making use of the gyroscope and making sure the robot follows a defined angle. We corrected the speeds of the motors with a factor relative to the angle difference. We will dive deeper into this in the implementation section.
+
+To sum it up: To fix the motor's speed difference, two solutions were combined:
+- Solution 1: Run at a speed both motors can reach (i.e. 800)
+- Solution 2: Programmatically ensure the robot follows the same angle when moving forward.
+
+Finally, the third motor doesn't need any calibration, as its role is to only move down to throw the obstacle and up to avoid obstructing the touch sensor.
  
 ### Gyroscope
  
 The use of the gyroscope is limited to the detection of the angles. We also based the movement correction (keep a straight line movement) with the use of the original angle to keep in case of any accident with other robots.
+
+Since the gyroscope plays an important role (Probably second only to motors), as it intervened in correcting the motor's speed difference, making turns and recovering from accidents to name a few, it's no surprise that we required its value to be as accurate as possible. 
  
 **Calibration:**
+
+There are 2 main issues when it comes to the gyroscope: Drift and lag.
+
+- Drift: Drift is when the values of the gyro change while it's still (i.e. not turning). We noticed that this problem showed up after a number of laps/turns. Inside the sensor section in the ev3 block there is a mode for the gyroscope called `GYRO_CAL_MODE`, this mode is used to stabilize the values of the sensor once switched on. Setting the gyro mode to `GYRO_CAL_MODE` and back to `GYRO_ANG_MODE` after a small wait fixes this issue.
+- Lag: We didn't have that big of an issue when it came to lag, as we weren't turning at a big rate. However we still decided to handle it to reduce potential errors down the line. To fix this issue, we reduced our motors speed when turning as we got closer to the desired angle, this made sure that the angle rate is not important once we're close to stopping. We noticed that our robot rotation got much more accurate after this, especially on the long term (i.e. after many turns).
  
-Inside the sensor section in the ev3 block there is a mode for the gyroscope called `GYRO_CAL_MODE`, this mode is used to stabilize the values of the sensor once switched on. To calibrate the gyroscope, we could switch this mode on before every test, or implement a method that switches between modes when required.
- 
-We have decided to implement in our `sensors.c` a utility function `calibrate_gyro` that switches to calibrate mode, sleep for a few seconds to let the calibration take action and then switches back to the angular mode `GYRO_ANG_MODE`. See [code](https://github.com/n3k0m4/RobotOs/tree/website#calibrating-gyroscope)
+
  
 ### Sonar
  
@@ -69,25 +89,25 @@ The implementation of all the robot's logic is wrapped around the ev3dev library
 
 ### Architecture and tree
 
-Our idea starting this project was to make a modular type architecture (usual for C projects), where we have our source code (our modules) in the `source` directory, an `include` directory (contains the headers of the modules; equivalent of interfaces), a `build` directory to put the compiled `.o` files before linking them, and a `libraries` directory when we put the neccessary `.a` files to statictly link them in our `main` binary.    
+Our idea starting this project was to make a modular type architecture (usual for C projects), where we have our source code (our modules) in the `source` directory, an `include` directory (contains the headers of the modules; equivalent of interfaces), a `build` directory to put the compiled `.o` files before linking them, and a `libraries` directory when we put the necessary `.a` files to statically link them in our `main` binary.    
 
 Inside `ev3dev-c` we have our submodule that we build our project with. The project's tree looks like the following:
 ```
 .
 ├── build
-│   ├── main.o
-│   ├── movement.o
-│   ├── sensors.o
-│   └── strats.o
+│   ├── main.o
+│   ├── movement.o
+│   ├── sensors.o
+│   └── strats.o
 ├── ev3dev-c  [20 entries exceeds filelimit, not opening dir]
 ├── include
-│   ├── logger.h
-│   ├── movement.h
-│   ├── sensors.h
-│   ├── strats.h
-│   └── utils.h
+│   ├── logger.h
+│   ├── movement.h
+│   ├── sensors.h
+│   ├── strats.h
+│   └── utils.h
 ├── libraries
-│   └── libev3dev-c.a
+│   └── libev3dev-c.a
 ├── Makefile
 ├── README.md
 └── source
@@ -223,3 +243,12 @@ void calibrate_gyro(){
 ## Strategies
 
 ## Test
+
+
+
+## Dump
+(i.e. No correction if angle difference is 0, and setting one motor speed to 0 if angle is 90°)
+
+To calibrate the gyroscope, we could switch this mode on before every test, or implement a method that switches between modes when required.
+
+We have decided to implement in our `sensors.c` a utility function `calibrate_gyro` that switches to calibrate mode, sleep for a few seconds to let the calibration take action and then switches back to the angular mode `GYRO_ANG_MODE`. See [code](https://github.com/n3k0m4/RobotOs/tree/website#calibrating-gyroscope)
