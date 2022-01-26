@@ -20,7 +20,7 @@ Our build consists of 3 tacho motors, two mounted directly as a base in the lowe
  
 The build is divided into 4 components, apart from the ev3 brick.
  
-### Motors and calibrations
+### Motors and calibration
  
 The motor section in the ev3 documentation was very detailed, which made writing the section code about the movement an easy and straight forward task. Our architecture used two main tacho motors to move the robot around. In an ideal setting, the motors will be calibrated, and the speed would match between the two motors. Unfortunately, this was not the case with the package we got, so we spent an important part of our project on calibrating the movement.
  
@@ -56,7 +56,7 @@ To sum it up: To fix the motor's speed difference, two solutions were combined:
 
 Finally, the third motor doesn't need any calibration, as its role is to only move down to throw the obstacle and up to avoid obstructing the touch sensor.
  
-### Gyroscope
+### Gyroscope and calibration
  
 The use of the gyroscope is limited to the detection of the angles. We also based the movement correction (keep a straight line movement) with the use of the original angle to keep in case of any accident with other robots.
 
@@ -71,7 +71,7 @@ There are 2 main issues when it comes to the gyroscope: Drift and lag.
  
 
  
-### Sonar
+### Sonar and calibration
  
 The sonar implementation was not a difficult part, as our goal was to keep looking in a direct line (No shapes detection) and measure the distance to the next obstacle (walls included).
  
@@ -306,6 +306,34 @@ The calibration methods `get_stable_sonar_value`, `calibrate_gyro`, and `move_ke
 
 
 
-## Test
+## Steps and Tests
+
+To get to final prototype of both the code and the sensors' logic, we had to undergo many testing phases. The first phases were about the decision making on what sensors can we use and what would be the purpose of each element in the architecture. Once we have set the map for the components to use, we had to solve a diffcult part abour calibrating the sensors and calibrating the movement in the track. The last phase of our approach was about detecting (differentiating) the obstacles and how can we work our way around them to continue the course.
+
+### Phase 1 (Components' choice):
+
+The decision making on which sensors to use was not difficult to conclude as the number of possibilities is limited. 
+
+First, we started by basing our robot on just the gyroscope and sonar. This approach came to a halt fast because due to the noisy values of both the gyroscope and the sonar, so we couldn't neither keep the robot in a precise direction nor make it take the right turns to continue the course.
+
+At this step we already knew that there must be a calibration mechanism using another sensor. So, we have included the use of the touch sensor. The robot started behaving better specially when it goes directly into the wall, it detects that it arrived so it goes back and turn. This version was the one we used in the first test (13th Jan) and we were able to validate the 5 turns but with not so reliable results.
+
+### Phase 2 (Stability & Reliability):
+
+Throught this phase our focus was on getting the sensors and the tacho motors to behave in a precise way as they were both accumulating and making the runs not reliable (more than 50% of the runs didn't finish the 5 turns). 
+
+For the motors, we have decided to not alwyas go full speed as the motors don't ramp up to their max_speed in the same time, which created an angular differnce right on the start of the robot. After some investigations, data gathering and plotting we found out that both motors get to 800 as speed relatively at the same time, with the difference a factor we were able to find. More details on this [here](###Motors%20and%20calibration)
+
+
+The sensors unfortunely couldn't be tuned that easily. So, we had to handle that part in the software, where we implemented util functions that swipes between modes for the gyroscore to calibrate it before any major movement. The same method was used for the sonar, as we had a similar behavior were the values were too noisy to make a decision. To solve this issue we force the robot to brake and read values until they stabilize within a threshold then continue. More details on the code [here](###Gyroscope%20and%20calibration) and [here](###Sonar%20and%20calibration)
+
+As results of all these tweeks our robot is much more reliable and can run the 5 turns almost always without hitting any fixed obstacle or getting of track (deviations). 
+
+### Phase 3 (Always Be Escaping):
+
+At this step our robot was reliable in its movements and able to detect relatively correct values with its sensors, so we started the phase of trying to compete against other robots and try to escape them and their obstacles. 
+
+
+
 
 
