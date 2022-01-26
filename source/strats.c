@@ -151,24 +151,28 @@ void _avoid_obstacle(int angle_to_keep, int sonar_threshold, int speed)
 
     time_t mov_start_time = time(NULL);
     turn_to_angle(orthogonal_angle, 5);
+    bool obstacle_avoided = false;
+    time_t obstacle_avoided_time;
     while (1)
     {
         move_keeping_angle(orthogonal_angle, speed);
-        if (difftime(time(NULL), mov_start_time) >= TIME_THRESHOLD)
+        if (!obstacle_avoided && difftime(time(NULL), mov_start_time) >= TIME_THRESHOLD)
         {
             turn_to_angle(angle_to_keep, 5);
             get_stable_sonar_value(&sonar_value);
             if (sonar_value >= sonar_threshold)
             {
-                turn_to_angle(orthogonal_angle, 5);
-                move_keeping_angle(orthogonal_angle, speed);
-                SLEEP(500);
-                stop(TACHO_COAST);
-                turn_to_angle(angle_to_keep, 5);
-                return;
-            } // Obstacle avoided
+                // Obstacle avoided. Wait a little before continuing because
+                // Robot's width might still touch obstacle.
+                obstacle_avoided = true;
+                obstacle_avoided_time = time(NULL);
+            }
             turn_to_angle(orthogonal_angle, 5);
             mov_start_time = time(NULL);
+        }
+        if (obstacle_avoided && difftime(time(NULL), obstacle_avoided_time) >= 2 * TIME_THRESHOLD){
+            turn_to_angle(angle_to_keep, 5);
+            return;
         }
         get_sonar_value(&sonar_value);
         if (sonar_value < sonar_threshold)
@@ -240,9 +244,7 @@ void against_cars()
             if (_is_obstacle_in_turn(nb_turns, left_motor_pos))
             {
                 printf("It's an obstacle. \n");
-                printf("before avoiding %d\n", angle_to_keep);
                 _avoid_obstacle(angle_to_keep, 10 * 10, 400);
-                printf("before avoiding %d\n", angle_to_keep);
             }
             else if (nb_turns % 2 == 0)
             {
