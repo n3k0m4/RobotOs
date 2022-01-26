@@ -29,6 +29,10 @@ The motor section in the ev3 documentation was very detailed, which made writing
 To do so, we first put the robot (fully charged) on the track and let it move freely with speed set at maximum speed but keep the logic of the turns and calibration, and gather the speeds from both motors during the whole trials.
  
 ![img](includes/plot1.png)
+
+<p align="center">
+  <img src="includes/plot1.png" />
+</p>
  
 In the first figure we can see that in the grand scheme of the course, the right motor plot is almost always on top of the left motor one besides a small part when they are in sync. 
  
