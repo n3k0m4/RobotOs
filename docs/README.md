@@ -2,6 +2,8 @@
 # Welcome to Team 5 OS's project
  
 Hello! This repository was made by TEAM 5 in the OS course at EURECOM 2022, and was composed by [@n3k0m4](https://github.com/n3k0m4), [@faroukfaiz10](https://github.com/faroukfaiz10), [@smlmz](https://github.com/smlmz), and was supervised by Mr ludovic Apvrille [@ludovicapvrille](https://github.com/ludovicapvrille).
+
+To help guide you through the sections of this document, please consider looking directly at the generated documentation for all our methods inside [here](html/files.html).
  
 ## Introduction
  
@@ -92,6 +94,8 @@ The touch sensor is the only sensor that is analog and provides correct values. 
 ## Implementation
 
 The implementation of all the robot's logic is wrapped around the ev3dev library. We have decided not to complicate our code for the readers and write the necessary wrappers around the native method of `ev3dev-c`. This wrapper methods and the modular architecture (next section) make it easy for anyone to follow the code and understand the use of each method.
+
+We have also implemented a specific documentation for all the sections of our project's code using `doxygen`. Please also consider opening the documentation [here](html/files.html) to get more insights on the methods and their parameters.
 
 ### Architecture and tree
 
@@ -339,8 +343,3 @@ As results of all these tweeks our robot is much more reliable and can run the 5
 
 At this step our robot was reliable in its movements and able to detect relatively correct values with its sensors, so we started the phase of trying to compete against other robots and try to escape them and their obstacles. 
 
-
-
-### DOC
-
-[DOC_here](html/index.html)
