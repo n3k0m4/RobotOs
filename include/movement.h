@@ -7,9 +7,9 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
-#define PORT_LEFT OUTPUT_B
-#define PORT_RIGHT OUTPUT_C
-#define PORT_OBSTACLE OUTPUT_A
+#define PORT_LEFT OUTPUT_B // Left motor port
+#define PORT_RIGHT OUTPUT_C // Right motor port
+#define PORT_OBSTACLE OUTPUT_A // Front "obstacle" motor port
 #define ANGLE_THRESHOLD 10
 #define FIRST_TURN_THRESHOLD 300
 #define LONG_PART_THRESHOLD 800

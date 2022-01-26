@@ -39,7 +39,7 @@ static int _validate_speed(int speed)
     return speed;
 }
 
-//TODO: Same arguments order everywhere
+// TODO: Same arguments order everywhere
 static void _run_motor_forever(uint8_t sn_motor, int speed)
 {
     set_tacho_speed_sp(sn_motor, speed);
@@ -129,7 +129,8 @@ void turn_90d_right(int speed)
     turn_to_angle(angle + 90, 5);
 }
 
-void _run_motor_timed(uint8_t sn_motor, int speed, int milliseconds){
+void _run_motor_timed(uint8_t sn_motor, int speed, int milliseconds)
+{
     // No need to use TACHO_RUN_TIMED because we sleep after anyway
     _run_motor_forever(sn_obstacle, -speed);
     SLEEP(milliseconds);
