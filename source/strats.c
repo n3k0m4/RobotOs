@@ -1,5 +1,6 @@
 #include "strats.h"
 #include <stdlib.h>
+#include <time.h>
 
 // Deprecated. Use move_keeping_angle
 bool recover_accident(int previous_angle, int current_angle)
@@ -136,10 +137,53 @@ bool _is_obstacle(int last_turn_motor_position, int threshold)
     return (curr_position - last_turn_motor_position) * 2 * PI * WHEEL_RADIUS / 360 < threshold;
 }
 
-void avoid_obstacle(int angle_to_keep, int direction)
+void avoid_obstacle(int angle_to_keep, int sonar_threshold, int speed)
 {
+    const int TIME_THRESHOLD = 1; // TODO: Rename ?
+    int left_sonar_value, right_sonar_value, sonar_value;
     turn_to_angle(angle_to_keep + 90, 5);
+    get_stable_sonar_value(&right_sonar_value);
     turn_to_angle(angle_to_keep - 90, 5);
+    get_stable_sonar_value(&left_sonar_value);
+    int orthogonal_angle = angle_to_keep - 90;
+    if (right_sonar_value > left_sonar_value)
+        orthogonal_angle = angle_to_keep + 90;
+
+    time_t mov_start_time = time(NULL);
+    turn_to_angle(orthogonal_angle, 5);
+    while (1)
+    {
+        move_keeping_angle(orthogonal_angle, speed);
+        if (difftime(time(NULL), mov_start_time) >= TIME_THRESHOLD)
+        {
+            turn_to_angle(angle_to_keep, 5);
+            get_stable_sonar_value(&sonar_value);
+            if (sonar_value >= sonar_threshold)
+                return; // Obstacle avoided
+            turn_to_angle(orthogonal_angle, 5);
+            mov_start_time = time(NULL);
+        }
+        get_sonar_value(&sonar_value);
+        if (sonar_value < sonar_threshold)
+        {
+            stop(TACHO_COAST);
+            get_stable_sonar_value(&sonar_value);
+            if (sonar_value < sonar_threshold)
+            { // No more room for checking on this direction
+                turn_to_angle(angle_to_keep, 5);
+                get_stable_sonar_value(&sonar_value);
+                if (sonar_value >= sonar_threshold)
+                    return; // Obstacle avoided
+                else
+                {
+                    // Couldn't find a way to avoid obstacle on this direction
+                    // Check on the other direction
+                    avoid_obstacle(angle_to_keep, sonar_threshold, speed);
+                    return;
+                }
+            }
+        }
+    }
 }
 
 bool _is_obstacle_in_turn(int nb_turns, int last_turn_motor_position)
@@ -178,13 +222,15 @@ void against_cars()
             printf("Found something. \n");
             stop(TACHO_COAST);
             get_stable_sonar_value(&sonar_value);
-            if (sonar_value >= SONAR_THRESHOLD){
+            if (sonar_value >= SONAR_THRESHOLD)
+            {
                 printf("False alarm. \n");
                 continue;
             }
-            if (_is_obstacle_in_turn(nb_turns, left_motor_pos)){
+            if (_is_obstacle_in_turn(nb_turns, left_motor_pos))
+            {
                 printf("It's an obstacle. \n");
-                avoid_obstacle(angle_to_keep, -1);
+                avoid_obstacle(angle_to_keep, 10 * 10, 400);
             }
             else if (nb_turns % 2 == 0)
             {
