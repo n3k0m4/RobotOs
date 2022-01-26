@@ -244,7 +244,12 @@ void against_cars()
             if (_is_obstacle_in_turn(nb_turns, left_motor_pos))
             {
                 printf("It's an obstacle. \n");
+                int left_motor_pos_pre_obstacle, left_motor_pos_post_obstacle;
+                get_left_motor_position(&left_motor_pos_pre_obstacle);
                 _avoid_obstacle(angle_to_keep, 10 * 10, 400);
+                get_left_motor_position(&left_motor_pos_post_obstacle);
+                // Distance traveled while avoiding obstacle should not be counted
+                left_motor_pos += left_motor_pos_post_obstacle - left_motor_pos_pre_obstacle
             }
             else if (nb_turns % 2 == 0)
             {
