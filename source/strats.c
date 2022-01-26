@@ -159,7 +159,14 @@ void _avoid_obstacle(int angle_to_keep, int sonar_threshold, int speed)
             turn_to_angle(angle_to_keep, 5);
             get_stable_sonar_value(&sonar_value);
             if (sonar_value >= sonar_threshold)
-                return; // Obstacle avoided
+            {
+                turn_to_angle(orthogonal_angle, 5);
+                move_keeping_angle(orthogonal_angle, speed);
+                SLEEP(500);
+                stop(TACHO_COAST);
+                turn_to_angle(angle_to_keep, 5);
+                return;
+            } // Obstacle avoided
             turn_to_angle(orthogonal_angle, 5);
             mov_start_time = time(NULL);
         }
@@ -233,7 +240,9 @@ void against_cars()
             if (_is_obstacle_in_turn(nb_turns, left_motor_pos))
             {
                 printf("It's an obstacle. \n");
+                printf("before avoiding %d\n", angle_to_keep);
                 _avoid_obstacle(angle_to_keep, 10 * 10, 400);
+                printf("before avoiding %d\n", angle_to_keep);
             }
             else if (nb_turns % 2 == 0)
             {
