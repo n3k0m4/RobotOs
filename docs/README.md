@@ -333,3 +333,8 @@ This has been by far the hardest part seeing how broad it is. We settled on defi
 
 This was the last piece of the puzzle for our robot. Equipped with this logic, it's now ready to go toe to toe against other robots !
 
+### Competition's results
+
+In the first competition that took place the 13th Jan, our robot was able to validate all the requirements, but with a slight issue of not being so reliable (we did not implement calibrations by that time) and not being able to escape moving obstacles.
+
+![img](includes/testResults_fall2021.jpg)
