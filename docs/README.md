@@ -338,3 +338,20 @@ This was the last piece of the puzzle for our robot. Equipped with this logic, i
 In the first competition that took place the 13th Jan, our robot was able to validate all the requirements, but with a slight issue of not being so reliable (we did not implement calibrations by that time) and not being able to escape moving obstacles.
 
 ![img](includes/testResults_fall2021.jpg)
+
+### Final competition
+
+Our robot was able to score decent result on the final test. But, due to some technical issues in the gyroscope, we were not able to attain the best performance. In the tests we conducted before finalizing the code, our gyroscope never experienced any hard drift (the gyroscope gets strongly recalibrated after 2 calibrations) like the one in the final test.
+ 
+This issue in the gyroscope made it impossible to lower the time in the course against time, because it was mandatory to hit the wall to calibrate and then go back and turn, and before we start moving in a straight line we calibrate the gyroscope by switching the modes. This calibration took almost 4s every turn.
+ 
+In the race against other cars, our robot was able to win multiple times and draw the rest, but unfortunately due to issues in the gyroscope we couldn't make a use for `against_car`.
+ 
+![img](includes/final_results.png)
+ 
+ 
+We have also stayed a few moments after the end of the final competition to fix the issue on the gyroscope and were able to lower the time from 44s to 35s by removing half of the calibrations (only calibrate once every turn). Please find the video in the link below.
+
+
+<div style="text-align: center"><a href="https://www.youtube.com/watch?v=FN6c05VuixY" target="_blank"><img src="http://img.youtube.com/vi/FN6c05VuixY/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="860" height="779"/></a></div>
