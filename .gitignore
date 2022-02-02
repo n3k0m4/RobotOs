@@ -1,6 +1,10 @@
 # Remove ev3libs
 ev3libs-c/*
-libraries/libev3dev-c.a
+libraries/*
+build/*
+
+.vscode
+main
 
 # Prerequisites
 *.d
@@ -54,3 +58,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Doxygen
+docs
